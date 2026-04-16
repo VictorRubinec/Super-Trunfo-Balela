@@ -1,0 +1,167 @@
+.card.v5-full-thumb {
+  width: 252px;
+  aspect-ratio: 63 / 88;
+  border-radius: 12px;
+  position: relative;
+  overflow: hidden;
+  flex-shrink: 0;
+  border: none !important;
+  box-shadow: 0 10px 50px rgba(0, 0, 0, 0.95);
+  background: #000;
+}
+
+.card.v5-full-thumb .card-photo-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center center;
+  z-index: 0;
+}
+
+.card.v5-full-thumb .card-photo-placeholder-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: linear-gradient(135deg, #1a0a3a, #000);
+}
+
+.card.v5-full-thumb .v5-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(
+    to bottom,
+    rgba(0,0,0,0.7) 0%,
+    transparent 15%,
+    transparent 55%,
+    rgba(0,0,0,0.85) 100%
+  );
+}
+
+.card.v5-full-thumb .card-inner {
+  position: absolute;
+  inset: 10px;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.card.v5-full-thumb .v5-title-banner {
+  background: var(--c-base, #7B2FBE);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  padding: 8px 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+}
+
+.card.v5-full-thumb .card-title-text {
+  display: block;
+  font-family: 'Outfit', sans-serif;
+  font-weight: 900;
+  font-size: 14px;
+  color: #fff;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  text-align: center;
+}
+
+.card.v5-full-thumb .card-spacer { flex: 1; }
+
+.card.v5-full-thumb .v5-badge-row {
+  display: flex;
+  justify-content: center;
+  margin-bottom: -10px;
+  position: relative;
+  z-index: 5;
+}
+
+.card.v5-full-thumb .card-tipo-badge {
+  background: var(--c-dark, #4C1D95);
+  border: 1px solid var(--c-base, #7B2FBE);
+  border-radius: 4px;
+  padding: 3px 12px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 8px;
+  font-weight: 800;
+  color: #fff;
+  text-transform: uppercase;
+}
+
+.card.v5-full-thumb .v5-attributes-box {
+  background: rgba(0, 0, 0, 0.90);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  overflow: hidden;
+  padding: 8px 0 2px;
+}
+
+.card.v5-full-thumb .v5-attr-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 4px 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.card.v5-full-thumb .v5-attr-row:last-child { border-bottom: none; }
+
+.card.v5-full-thumb .v5-label {
+  font-family: 'Outfit', sans-serif;
+  font-size: 8px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.75);
+  text-transform: uppercase;
+}
+
+.card.v5-full-thumb .v5-value {
+  font-family: 'Outfit', sans-serif;
+  font-size: 10px;
+  font-weight: 900;
+  color: var(--c-base, #7B2FBE);
+}
+
+.card.v5-full-thumb .v5-phrase-banner {
+  background: #05000e;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 6px 15px;
+  text-align: center;
+}
+
+.card.v5-full-thumb .card-phrase-text {
+  font-family: 'Outfit', sans-serif;
+  font-size: 8.5px;
+  font-weight: 600;
+  font-style: italic;
+  color: #fff;
+}
+
+.card.v5-full-thumb .v5-footer-info {
+  display: flex;
+  justify-content: flex-start;
+  padding-bottom: 2px;
+}
+
+.card.v5-full-thumb .card-pacote {
+  font-family: 'Outfit', sans-serif;
+  font-size: 6px;
+  font-weight: 700;
+  color: var(--c-light, #A855F7);
+  opacity: 0.6;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  text-align: left;
+}
+
+.gallery-item .card.v5-full-thumb { width: 165px; }
+
+.card.v5-full-thumb.print-card {
+  width: 63mm;
+  height: 88mm;
+  border-radius: 3mm;
+  aspect-ratio: unset;
+  border: none !important;
+}

@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Balela Trunfo — Gerador de Cartas</title>
+  <meta name="description" content="Gerador de cartas Super Trunfo do canal Balela" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎴</text></svg>">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <link rel="stylesheet" href="/css/models/v1-default.css" />
+  <link rel="stylesheet" href="/css/models/v2-especial.css" />
+  <link rel="stylesheet" href="/css/models/v3-full-art.css" />
+  <link rel="stylesheet" href="/css/models/v4-thumb.css" />
+  <link rel="stylesheet" href="/css/models/v5-full-thumb.css" />
+  <link rel="stylesheet" href="/css/models/v6-showcase.css" />
+  <link rel="stylesheet" href="/css/card-back.css" />
+</head>
+<body>
+
+  <header class="app-header">
+    <div class="header-inner">
+      <div class="header-brand">
+        <span class="header-icon">🎴</span>
+        <div>
+          <h1 class="header-title">Balela Trunfo</h1>
+          <span class="header-sub">Gerador de Cartas Super Trunfo</span>
+        </div>
+      </div>
+      <div class="header-badge">Canal Balela</div>
+    </div>
+  </header>
+
+  <main class="app-main">
+    <section class="editor-section">
+
+      <div class="form-panel glass-panel">
+        <h2 class="panel-title">Nova Carta</h2>
+
+        <form id="card-form" class="card-form" novalidate>
+
+          <div class="form-group">
+            <label class="form-label" for="field-titulo">Título</label>
+            <input id="field-titulo" class="form-input" type="text"
+              placeholder="Ex: CALANGO PUNK" maxlength="40" />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="field-cor">Cor Tema</label>
+            <input id="field-cor" class="form-input" type="color" value="#7B2FBE"
+              style="padding: 0; height: 38px; cursor: pointer;" />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="field-tipo">Tipo</label>
+            <select id="field-tipo" class="form-input form-select">
+              <option value="">Selecione o tipo...</option>
+              <option value="Baleler">Baleler</option>
+              <option value="Produção">Produção</option>
+              <option value="Convidado">Convidado</option>
+              <option value="Meme">Meme</option>
+              <option value="Momento">Momento</option>
+              <option value="Personagem">Personagem</option>
+              <option value="Video">Video</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <span class="form-label">Atributos</span>
+            <div class="attributes-grid">
+
+              <div class="attr-field">
+                <div class="attr-field-header">
+                  <label class="attr-label" for="attr-entretenimento">Entretenimento</label>
+                  <span class="attr-display" id="disp-entretenimento">5</span>
+                </div>
+                <input id="attr-entretenimento" class="attr-slider" type="range"
+                  min="1" max="10" value="5" />
+              </div>
+
+              <div class="attr-field">
+                <div class="attr-field-header">
+                  <label class="attr-label" for="attr-vergonha">Vergonha Alheia</label>
+                  <span class="attr-display" id="disp-vergonha">5</span>
+                </div>
+                <input id="attr-vergonha" class="attr-slider" type="range"
+                  min="1" max="10" value="5" />
+              </div>
+
+              <div class="attr-field">
+                <div class="attr-field-header">
+                  <label class="attr-label" for="attr-competencia">Competência</label>
+                  <span class="attr-display" id="disp-competencia">5</span>
+                </div>
+                <input id="attr-competencia" class="attr-slider" type="range"
+                  min="1" max="10" value="5" />
+              </div>
+
+              <div class="attr-field">
+                <div class="attr-field-header">
+                  <label class="attr-label" for="attr-balela">Balela</label>
+                  <span class="attr-display" id="disp-balela">5</span>
+                </div>
+                <input id="attr-balela" class="attr-slider" type="range"
+                  min="1" max="10" value="5" />
+              </div>
+
+              <div class="attr-field">
+                <div class="attr-field-header">
+                  <label class="attr-label" for="attr-climao">Climão</label>
+                  <span class="attr-display" id="disp-climao">5</span>
+                </div>
+                <input id="attr-climao" class="attr-slider" type="range"
+                  min="1" max="10" value="5" />
+              </div>
+
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="field-video">Pacote / Coleção</label>
+            <input id="field-video" class="form-input" type="text"
+              placeholder="Ex: PACOTE LENDÁRIO" maxlength="40" />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="field-frase">Frase Marcante</label>
+            <input id="field-frase" class="form-input" type="text"
+              placeholder='Ex: "ANARQUISMO!"' maxlength="80" />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Foto do Personagem</label>
+            <label for="field-foto" class="upload-area" id="upload-area">
+              <span class="upload-icon">📁</span>
+              <span class="upload-text">Clique para selecionar uma foto</span>
+              <span class="upload-hint">PNG, JPG ou WEBP</span>
+              <input id="field-foto" type="file" accept="image/*" class="upload-input" />
+            </label>
+            <div class="upload-preview" id="upload-preview" style="display:none;">
+              <img id="upload-preview-img" src="" alt="Preview" />
+              <button type="button" class="btn-remove-photo" id="btn-remove-photo">✕</button>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="field-modelo">Modelo da Carta</label>
+            <select id="field-modelo" class="form-input form-select">
+              <option value="v1-default">v1 — Cristal (padrão)</option>
+            </select>
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-full" id="btn-add-card">
+            <span>✚</span> Adicionar Carta
+          </button>
+
+        </form>
+      </div>
+
+      <div class="preview-panel glass-panel">
+        <div class="panel-header">
+          <h2 class="panel-title">Preview</h2>
+          <button type="button" class="btn btn-secondary btn-sm" id="btn-flip-preview">
+            <span>🔄</span> Girar Carta
+          </button>
+        </div>
+        <div class="preview-wrapper">
+            <!-- Renderizado via Javascript (form.js) -->
+        </div>
+      </div>
+
+    </section>
+
+    <section class="actions-bar glass-panel">
+      <div class="actions-left">
+        <div class="format-control">
+          <label class="toggle-label">Formato:</label>
+          <div class="custom-dropdown" id="format-selector">
+            <button class="dropdown-trigger" id="format-trigger">
+              <span id="format-selected-text">A4 (Padrão)</span>
+              <span class="dropdown-arrow"></span>
+            </button>
+            <div class="dropdown-menu" id="format-options">
+              <div class="dropdown-opt" data-value="a4">A4 (Padrão)</div>
+              <div class="dropdown-opt" data-value="super-a4">Super A4</div>
+              <div class="dropdown-opt" data-value="a3">A3</div>
+              <div class="dropdown-opt" data-value="super-a3">Super A3</div>
+            </div>
+          </div>
+        </div>
+
+        <button class="btn btn-secondary" id="btn-export-pdf">
+          📄 Exportar PDF
+        </button>
+        <button class="btn btn-secondary" id="btn-export-backs">
+          🎴 Exportar Versos
+        </button>
+        <button class="btn btn-secondary" id="btn-export-csv">📊 Exportar CSV</button>
+        
+        <label for="input-import-csv" class="btn btn-secondary" id="btn-import-csv">
+          📥 Importar CSV
+          <input id="input-import-csv" type="file" accept=".csv" class="hidden-input" />
+        </label>
+      </div>
+      <div class="actions-right">
+        <div class="bleed-control">
+          <label class="toggle-label" for="input-bleed">Sangria (mm)</label>
+          <input type="number" id="input-bleed" class="form-input bleed-input" value="3" min="0" max="10" step="0.5" />
+        </div>
+        <label class="toggle-label">
+          <span class="toggle-text">✂ Marca de Corte</span>
+          <input type="checkbox" id="toggle-cutmarks" class="toggle-input" />
+          <span class="toggle-switch"></span>
+        </label>
+      </div>
+    </section>
+
+    <section class="gallery-section">
+      <div class="gallery-header">
+        <h2 class="gallery-title">Cartas Criadas</h2>
+        <span class="gallery-count" id="gallery-count">0 cartas</span>
+      </div>
+      <div class="gallery-grid" id="gallery-grid">
+        <div class="gallery-empty" id="gallery-empty">
+          <span class="gallery-empty-icon">🃏</span>
+          <p>Nenhuma carta criada ainda.</p>
+          <p>Preencha o formulário acima para começar!</p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="app-footer">
+    <span>Balela Trunfo © 2026 · Victor Zanin Rubinec</span>
+  </footer>
+  <script type="module" src="/src/app.js"></script>
+
+</body>
+</html>

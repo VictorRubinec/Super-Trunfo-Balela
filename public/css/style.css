@@ -1,0 +1,178 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap');
+
+:root {
+  /* Cores base */
+  --primary:        #7B2FBE;
+  --primary-light:  #A855F7;
+  --primary-dark:   #4C1D95;
+  --primary-glow:   rgba(168, 85, 247, 0.28);
+  --primary-border: rgba(168, 85, 247, 0.35);
+
+  /* Fundo da app */
+  --bg-app:         #0b0618;
+  --bg-app-2:       #0f0720;
+  --bg-panel:       rgba(255, 255, 255, 0.04);
+  --bg-panel-hover: rgba(255, 255, 255, 0.07);
+
+  /* Texto */
+  --text-1: #f0e8ff;
+  --text-2: rgba(240, 232, 255, 0.65);
+  --text-3: rgba(240, 232, 255, 0.35);
+
+  /* Bordas e sombras */
+  --border:      rgba(168, 85, 247, 0.18);
+  --border-s:    rgba(168, 85, 247, 0.38);
+  --shadow-sm:   0 2px 8px rgba(0, 0, 0, 0.3);
+  --shadow-md:   0 8px 24px rgba(0, 0, 0, 0.4);
+  --shadow-lg:   0 16px 48px rgba(0, 0, 0, 0.5);
+  --shadow-glow: 0 0 24px rgba(124, 58, 237, 0.35);
+
+  /* Raios */
+  --r-sm: 8px;
+  --r-md: 12px;
+  --r-lg: 16px;
+  --r-xl: 24px;
+
+  /* Tipografia */
+  --font: 'Outfit', system-ui, sans-serif;
+
+  /* Transições */
+  --ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --dur:  220ms;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--font);
+  font-size: 15px;
+  background: var(--bg-app);
+  color: var(--text-1);
+  min-height: 100vh;
+  overflow-x: hidden;
+  line-height: 1.5;
+  /* Gradiente de fundo sutil */
+  background-image:
+    radial-gradient(ellipse at 20% 0%, rgba(123, 47, 190, 0.18) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 100%, rgba(76, 29, 149, 0.12) 0%, transparent 50%);
+  background-attachment: fixed;
+}
+
+img { display: block; max-width: 100%; }
+button { cursor: pointer; font-family: var(--font); }
+input, select, textarea { font-family: var(--font); }
+a { color: var(--primary-light); text-decoration: none; }
+
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.02); }
+::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--primary-light); }
+
+.app-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: linear-gradient(90deg, #1a0a3a 0%, #2d1260 40%, #1a0a3a 100%);
+  border-bottom: 1px solid var(--border-s);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.5), var(--shadow-glow);
+  padding: 0 32px;
+}
+
+.header-inner {
+  max-width: 1400px;
+  margin: 0 auto;
+  height: 68px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.header-brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.header-icon {
+  font-size: 32px;
+  filter: drop-shadow(0 0 10px rgba(168, 85, 247, 0.7));
+}
+
+.header-title {
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--text-1);
+  line-height: 1.1;
+}
+
+.header-sub {
+  display: block;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-2);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.header-badge {
+  padding: 6px 16px;
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #fff;
+  box-shadow: 0 0 16px var(--primary-glow);
+}
+
+.app-main {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 32px 32px 64px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.editor-section {
+  display: grid;
+  grid-template-columns: 420px 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+.glass-panel {
+  background: var(--bg-panel);
+  backdrop-filter: blur(16px) saturate(1.5);
+  -webkit-backdrop-filter: blur(16px) saturate(1.5);
+  border: 1px solid var(--border);
+  border-radius: var(--r-xl);
+  padding: 28px;
+  box-shadow: var(--shadow-md);
+}
+
+.panel-title {
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--primary-light);
+  margin-bottom: 20px;
+}
+
+.app-footer {
+  text-align: center;
+  padding: 24px 32px;
+  color: var(--text-3);
+  font-size: 13px;
+  border-top: 1px solid var(--border);
+}

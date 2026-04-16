@@ -1,0 +1,80 @@
+
+:root {
+  --back-bg: #0f0426;
+  --back-accent: #7B2FBE;
+  --back-accent-light: #A855F7;
+}
+
+.card-back {
+  width: 252px;
+  height: 352px; /* 63x88mm ratio */
+  background: var(--back-bg);
+  border-radius: 12.6px; /* Aprox 3mm */
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  user-select: none;
+}
+
+/* Padrão geométrico de fundo (Triângulos) */
+.card-back::before {
+  content: '';
+  position: absolute;
+  inset: 10px;
+  border-radius: 8px;
+  background-image: 
+    linear-gradient(30deg, rgba(123, 47, 190, 0.05) 12%, transparent 12.5%, transparent 87%, rgba(123, 47, 190, 0.05) 87.5%, rgba(123, 47, 190, 0.05)),
+    linear-gradient(150deg, rgba(123, 47, 190, 0.05) 12%, transparent 12.5%, transparent 87%, rgba(123, 47, 190, 0.05) 87.5%, rgba(123, 47, 190, 0.05)),
+    linear-gradient(30deg, rgba(123, 47, 190, 0.05) 12%, transparent 12.5%, transparent 87%, rgba(123, 47, 190, 0.05) 87.5%, rgba(123, 47, 190, 0.05)),
+    linear-gradient(150deg, rgba(123, 47, 190, 0.05) 12%, transparent 12.5%, transparent 87%, rgba(123, 47, 190, 0.05) 87.5%, rgba(123, 47, 190, 0.05)),
+    linear-gradient(60deg, rgba(168, 85, 247, 0.03) 25%, transparent 25.5%, transparent 75%, rgba(168, 85, 247, 0.03) 75.5%, rgba(168, 85, 247, 0.03)),
+    linear-gradient(60deg, rgba(168, 85, 247, 0.03) 25%, transparent 25.5%, transparent 75%, rgba(168, 85, 247, 0.03) 75.5%, rgba(168, 85, 247, 0.03));
+  background-size: 40px 70px;
+  background-position: 0 0, 0 0, 20px 35px, 20px 35px, 0 0, 20px 35px;
+  z-index: 1;
+}
+
+/* Moldura interna neon */
+.card-back::after {
+  content: '';
+  position: absolute;
+  inset: 10px;
+  border: 1px solid rgba(168, 85, 247, 0.3);
+  border-radius: 8px;
+  pointer-events: none;
+  z-index: 2;
+  box-shadow: inset 0 0 15px rgba(123, 47, 190, 0.2);
+}
+
+.back-content {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+}
+
+.back-logo-main {
+  width: 180px;
+  height: auto;
+  filter: drop-shadow(0 0 15px rgba(168, 85, 247, 0.6));
+  animation: float 4s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+.card-back.print-card {
+  width: 63mm;
+  height: 88mm;
+  border-radius: 3mm;
+  box-shadow: none;
+}
