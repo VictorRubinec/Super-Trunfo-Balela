@@ -1,4 +1,5 @@
 import ApiClient from '../utils/api-client.js';
+import Toast     from '../utils/toast.js';
 
 const PackageManager = {
     packages: [],
@@ -16,9 +17,8 @@ const PackageManager = {
             tableBody:   document.getElementById('packages-table-body'),
             saveBtn:     document.getElementById('btn-save-package'),
             
-            // Autocomplete
-            autoInput:   document.getElementById('field-video'),
-            autoDrop:    document.getElementById('packages-autocomplete'),
+            // Select no formulário principal
+            packageSelect: document.getElementById('field-video'),
         };
 
         this._bindEvents();
@@ -28,7 +28,12 @@ const PackageManager = {
     async refresh() {
         try {
             this.packages = await ApiClient.getPackages();
+            
+            // Ordenar alfabeticamente
+            this.packages.sort((a, b) => a.nome.localeCompare(b.nome));
+
             this._renderTable();
+            this._populateSelect();
             this.onChanged?.();
         } catch (err) {
             console.error('[PackageManager] Error refreshing:', err);
@@ -56,47 +61,23 @@ const PackageManager = {
                 this._resetForm();
             }
         });
-
-        // Autocomplete Events
-        this.el.autoInput?.addEventListener('input', () => this._handleAutoInput());
-        this.el.autoInput?.addEventListener('focus', () => this._handleAutoInput());
-        
-        document.addEventListener('click', (e) => {
-            if (!this.el.autoInput?.contains(e.target) && !this.el.autoDrop?.contains(e.target)) {
-                this.el.autoDrop?.classList.remove('active');
-            }
-        });
     },
 
-    _handleAutoInput() {
-        const val = this.el.autoInput.value.toLowerCase();
-        const filtered = this.packages.filter(p => p.nome.toLowerCase().includes(val));
-        
-        if (filtered.length > 0) {
-            this._renderAutocomplete(filtered);
-            this.el.autoDrop.classList.add('active');
-        } else {
-            this.el.autoDrop.classList.remove('active');
-        }
-    },
+    /** Preenche o select do formulário de cartas com os pacotes disponíveis */
+    _populateSelect() {
+        if (!this.el.packageSelect) return;
 
-    _renderAutocomplete(list) {
-        this.el.autoDrop.innerHTML = list.map(pkg => `
-            <div class="autocomplete-item" data-nome="${pkg.nome}" data-cor="${pkg.cor}">
-                <div class="autocomplete-color" style="background: ${pkg.cor}"></div>
-                <span>${pkg.nome}</span>
-            </div>
-        `).join('');
+        // Guardar valor atual para não perder seleção no refresh
+        const currentVal = this.el.packageSelect.value;
 
-        this.el.autoDrop.querySelectorAll('.autocomplete-item').forEach(item => {
-            item.addEventListener('click', () => {
-                this.el.autoInput.value = item.dataset.nome;
-                this.el.autoDrop.classList.remove('active');
-                
-                // Trigger event to sync color in Form
-                this.el.autoInput.dispatchEvent(new Event('input', { bubbles: true }));
-            });
-        });
+        this.el.packageSelect.innerHTML = `
+            <option value="">Selecione um pacote...</option>
+            ${this.packages.map(pkg => `
+                <option value="${pkg.nome}" ${pkg.nome === currentVal ? 'selected' : ''}>
+                    ${pkg.nome}
+                </option>
+            `).join('')}
+        `;
     },
 
     async _handleSave() {
@@ -106,16 +87,28 @@ const PackageManager = {
         };
         const id = this.el.inputId.value;
 
+        if (!pkgData.nome) {
+            Toast.error('O nome do pacote é obrigatório.');
+            return;
+        }
+
         try {
+            this.el.saveBtn.disabled = true;
+            this.el.saveBtn.textContent = 'Salvando...';
+
             if (id) {
                 await ApiClient.updatePackage(id, pkgData);
+                Toast.success('Pacote atualizado! ✨');
             } else {
                 await ApiClient.createPackage(pkgData);
+                Toast.success('Novo pacote criado! 📦');
             }
             this._resetForm();
             await this.refresh();
         } catch (err) {
-            alert('Erro: ' + err.message);
+            Toast.error('Erro ao salvar pacote: ' + err.message);
+        } finally {
+            this.el.saveBtn.disabled = false;
         }
     },
 
@@ -128,15 +121,17 @@ const PackageManager = {
     _renderTable() {
         if (!this.el.tableBody) return;
         this.el.tableBody.innerHTML = this.packages.map(pkg => `
-            <tr>
-                <td>${pkg.nome}</td>
+            <tr class="admin-row">
                 <td>
-                    <div class="color-swatch" style="background: ${pkg.cor};"></div>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <div class="color-swatch-sm" style="background: ${pkg.cor}; border-radius: 4px; width: 14px; height: 14px;"></div>
+                        <span style="font-weight: 600;">${pkg.nome}</span>
+                    </div>
                 </td>
-                <td>
-                    <div class="pkg-actions">
+                <td style="text-align: right;">
+                    <div class="pkg-actions" style="display: flex; gap: 8px; justify-content: flex-end;">
                         <button class="btn-icon btn-edit-pkg" data-id="${pkg.id}" title="Editar">✏️</button>
-                        <button class="btn-icon btn-delete-pkg" data-id="${pkg.id}" title="Excluir">🗑️</button>
+                        <button class="btn-icon btn-delete-pkg" data-id="${pkg.id}" title="Excluir" style="color: #f87171;">🗑️</button>
                     </div>
                 </td>
             </tr>
@@ -163,12 +158,15 @@ const PackageManager = {
     },
 
     async _deletePackage(id) {
-        if (!confirm('Excluir este pacote?')) return;
+        // Usar o confirm customizado se disponível ou o padrão do navegador
+        if (!confirm('Excluir este pacote? Isso NÃO deletará as cartas, mas elas ficarão sem pacote associado.')) return;
+        
         try {
             await ApiClient.deletePackage(id);
+            Toast.success('Pacote removido.');
             await this.refresh();
         } catch (err) {
-            alert('Erro: ' + err.message);
+            Toast.error('Erro ao excluir: ' + err.message);
         }
     },
 

@@ -19,6 +19,15 @@ router.get('/', async (req, res) => {
 router.post('/', authenticate, authorize(['admin', 'member']), async (req, res) => {
     const cardData = mapToDb(req.body);
     
+    // Validação de Campos Obrigatórios
+    if (!cardData.titulo || !cardData.video_origem) {
+        return res.status(400).json({ error: 'Título e Pacote são obrigatórios.' });
+    }
+
+    if (!cardData.foto) {
+        return res.status(400).json({ error: 'A foto da carta é obrigatória.' });
+    }
+
     // Garantir que nenhum ID (vazio ou não) seja enviado na criação
     delete cardData.id; 
 
@@ -52,6 +61,16 @@ router.put('/:id', authenticate, authorize(['admin', 'member']), async (req, res
     if (!oldData) return res.status(404).json({ error: 'Carta não encontrada ou acesso negado' });
 
     const cardData = mapToDb(req.body);
+
+    // Validação de Campos Obrigatórios na Edição
+    if (!cardData.titulo || !cardData.video_origem) {
+        return res.status(400).json({ error: 'Título e Pacote são obrigatórios.' });
+    }
+
+    if (!cardData.foto) {
+        return res.status(400).json({ error: 'A foto da carta é obrigatória.' });
+    }
+
     delete cardData.id; // Evitar mudar ID
 
     const { data, error } = await req.supabase

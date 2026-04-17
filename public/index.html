@@ -136,13 +136,9 @@
           <div class="form-group">
             <label class="form-label">Pacote / Coleção</label>
             <div class="field-with-action">
-              <div class="autocomplete-container">
-                <input id="field-video" class="form-input" type="text"
-                  placeholder="Ex: Aula de Muay Thai" maxlength="60" autocomplete="off" />
-                <div id="packages-autocomplete" class="autocomplete-dropdown">
-                  <!-- Populada via JS -->
-                </div>
-              </div>
+              <select id="field-video" class="form-input form-select">
+                <option value="">Selecione um pacote...</option>
+              </select>
               <button type="button" class="btn btn-secondary" id="btn-manage-packages" title="Gerenciar pacotes e cores">
                 ⚙️
               </button>

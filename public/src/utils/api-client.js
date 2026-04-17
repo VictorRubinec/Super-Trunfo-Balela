@@ -109,7 +109,10 @@ const ApiClient = {
     async exportBundleZip(config) {
         const res = await fetch(`${BASE}/export/bundle`, {
             method:  'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${AuthManager.getToken()}` },
+            headers: { 
+                'Content-Type': 'application/json', 
+                'Authorization': `Bearer ${getLocalToken()}` 
+            },
             body:    JSON.stringify(config),
         });
 

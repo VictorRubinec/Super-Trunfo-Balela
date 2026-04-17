@@ -1,5 +1,6 @@
 import ModelRegistry from '../models/model-registry.js';
 import PackageManager from './package-manager.js';
+import Toast from '../utils/toast.js';
 
 function updateSliderFill(slider) {
     const min = parseFloat(slider.min) || 1;
@@ -363,10 +364,32 @@ const Form = {
     _handleSubmit() {
         const cardData = this.getCardData();
 
+        // Limpar erros anteriores
+        this.el.titulo?.classList.remove('input-error');
+        this.el.video?.classList.remove('input-error');
+        this.el.uploadArea?.classList.remove('input-error');
+
+        // 1. Validar Título
         if (!cardData.titulo.trim()) {
+            Toast.error('Por favor, dê um nome para a carta!');
             this.el.titulo?.focus();
             this.el.titulo?.classList.add('input-error');
-            setTimeout(() => this.el.titulo?.classList.remove('input-error'), 1200);
+            return;
+        }
+
+        // 2. Validar Pacote (Vídeo de Origem)
+        if (!cardData.video_origem.trim()) {
+            Toast.error('Você precisa selecionar um Pacote / Vídeo!');
+            this.el.video?.focus();
+            this.el.video?.classList.add('input-error');
+            return;
+        }
+
+        // 3. Validar Foto
+        // Se estivermos editando, pode ser que foto já exista no cardData.foto como URL
+        if (!this.currentPhotoDataUrl) {
+            Toast.error('Toda carta precisa de uma foto!');
+            this.el.uploadArea?.classList.add('input-error');
             return;
         }
 

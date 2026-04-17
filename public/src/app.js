@@ -5,6 +5,7 @@ import PrintManager from './components/print-manager.js';
 import AuthManager from './components/auth-manager.js';
 import AdminManager from './components/admin-manager.js';
 import ApiClient from './utils/api-client.js';
+import Toast from './utils/toast.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
 
@@ -41,9 +42,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (cardData.id) {
                 const updated = await ApiClient.updateCard(cardData.id, cardData);
                 CardList.replaceCard(updated);
+                Toast.success('Carta atualizada com sucesso! ✨');
             } else {
                 const created = await ApiClient.createCard(cardData);
                 CardList.addCard(created);
+                Toast.success('Nova carta adicionada à coleção! 🃏');
             }
 
             Form.reset();
@@ -52,7 +55,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
         } catch (err) {
-            alert('Erro ao salvar carta:\n' + err.message);
+            Toast.error('Erro ao salvar carta: ' + err.message);
             console.error('[app] card:submit error:', err);
         } finally {
             if (btn) {
