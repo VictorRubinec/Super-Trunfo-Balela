@@ -1,0 +1,21 @@
+{
+  "name": "Balela Trunfo",
+  "short_name": "Balela",
+  "description": "Gerador de cartas Super Trunfo do canal Balela",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0b0618",
+  "theme_color": "#0b0618",
+  "icons": [
+    {
+      "src": "/assets/logo/logo-1.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/assets/logo/logo-1.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

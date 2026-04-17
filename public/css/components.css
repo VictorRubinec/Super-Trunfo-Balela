@@ -1750,4 +1750,92 @@ body.is-visitor .card-form::after {
 
 /* --- ONBOARDING --- */
 .onboarding-desc { color: var(--text-3); margin-bottom: 20px; line-height: 1.5; }
-.btn-full { width: 100%; margin-top: 10px; }
+@media (max-width: 768px) {
+  .attr-slider {
+    height: 8px; /* Mais fácil de tocar */
+  }
+
+  .attr-slider::-webkit-slider-thumb {
+    width: 24px;
+    height: 24px;
+  }
+
+  .btn {
+    padding: 14px 20px; /* Botões maiores para mobile */
+    font-size: 14px;
+  }
+
+  .btn-sm {
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+}
+/* --- MOBILE REFINEMENTS --- */
+
+@media (max-width: 768px) {
+  .modal {
+    align-items: flex-end; /* Alinha no rodapé para Bottom Sheet */
+    padding: 0;
+  }
+
+  .modal-content {
+    width: 100% !important;
+    max-width: none !important;
+    border-radius: var(--r-xl) var(--r-xl) 0 0;
+    margin-bottom: 0;
+    animation: slideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    max-height: 90vh;
+    overflow-y: auto;
+    padding-bottom: 40px;
+    border-left: none;
+    border-right: none;
+    border-bottom: none;
+  }
+
+  @keyframes slideUp {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+  }
+
+  .modal-header {
+    position: sticky;
+    top: 0;
+    background: inherit;
+    z-index: 10;
+    padding-bottom: 15px;
+    margin-top: -5px;
+  }
+
+  /* Handle do Bottom Sheet */
+  .modal-content::before {
+    content: '';
+    width: 40px;
+    height: 4px;
+    background: var(--text-3);
+    border-radius: 2px;
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .gallery-item-list {
+    grid-template-columns: 8px 1fr auto;
+    gap: 12px;
+  }
+
+  .list-phrase, .list-attributes { display: none; }
+
+  .admin-table th:nth-child(2),
+  .admin-table td:nth-child(2) {
+    display: none;
+  }
+
+  .invite-box {
+    flex-direction: column;
+  }
+
+  .form-row {
+    flex-direction: column;
+  }
+}
