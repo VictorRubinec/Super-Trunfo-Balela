@@ -1,4 +1,6 @@
-const puppeteer = require('puppeteer');
+const isVercel = process.env.VERCEL === '1' || process.env.NODE_ENV === 'production';
+const puppeteer = isVercel ? require('puppeteer-core') : require('puppeteer');
+const chromium  = isVercel ? require('@sparticuz/chromium') : null;
 const fs   = require('fs');
 const path = require('path');
 const { cardToHtml, colorVars } = require('./card-renderer');
@@ -11,6 +13,21 @@ const PAGE_FORMATS = {
     'a3':       { width: 297, height: 420, label: 'A3' },
     'super-a3': { width: 320, height: 450, label: 'Super A3' },
 };
+
+async function getLaunchOptions() {
+    if (isVercel) {
+        return {
+            args: chromium.args,
+            defaultViewport: chromium.defaultViewport,
+            executablePath: await chromium.executablePath(),
+            headless: chromium.headless,
+        };
+    }
+    return {
+        headless: true,
+        args: ['--no-sandbox', '--disable-setuid-sandbox'],
+    };
+}
 
 const CARD_W = 63;      // mm
 const CARD_H = 88;      // mm
@@ -197,10 +214,8 @@ async function generatePDF(cards, format, showCutmarks, bleed, port = 3000) {
     const fmt  = PAGE_FORMATS[format] || PAGE_FORMATS['a4'];
     const html = buildPrintHTML(cards, format, showCutmarks, bleed, port);
 
-    const browser = await puppeteer.launch({
-        headless: true,
-        args: ['--no-sandbox', '--disable-setuid-sandbox'],
-    });
+    const options = await getLaunchOptions();
+    const browser = await puppeteer.launch(options);
 
     try {
         const page = await browser.newPage();
@@ -318,10 +333,8 @@ async function generateBacksPDF(cards, format, showCutmarks, bleed, port = 3000)
     const fmt  = PAGE_FORMATS[format] || PAGE_FORMATS['a4'];
     const html = buildBacksHTML(cards, format, showCutmarks, bleed, port);
 
-    const browser = await puppeteer.launch({
-        headless: true,
-        args: ['--no-sandbox', '--disable-setuid-sandbox'],
-    });
+    const options = await getLaunchOptions();
+    const browser = await puppeteer.launch(options);
 
     try {
         const page = await browser.newPage();

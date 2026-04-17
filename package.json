@@ -8,6 +8,7 @@
     "dev": "nodemon server.js"
   },
   "dependencies": {
+    "@sparticuz/chromium": "^147.0.0",
     "@supabase/supabase-js": "^2.103.3",
     "adm-zip": "^0.5.17",
     "cors": "^2.8.6",
@@ -19,6 +20,7 @@
     "multer": "^2.0.0",
     "nodemailer": "^8.0.5",
     "puppeteer": "^24.0.0",
+    "puppeteer-core": "^24.41.0",
     "uuid": "^9.0.0"
   },
   "devDependencies": {
