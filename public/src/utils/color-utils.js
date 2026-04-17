@@ -46,17 +46,30 @@ export function hslToHex(h, s, l) {
 export function deriveColors(hex) {
     if (!hex || !/^#[0-9a-fA-F]{6}$/.test(hex)) hex = '#7B2FBE';
     const { h, s, l } = hexToHsl(hex);
+
+    // Cálculo de luminância para contraste dinâmico
+    const r = parseInt(hex.slice(1, 3), 16);
+    const g = parseInt(hex.slice(3, 5), 16);
+    const b = parseInt(hex.slice(5, 7), 16);
+    const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+    const isLight = luminance > 0.75; // Branco ou cores muito claras
+
     return {
         base:    hex,
         dark:    hslToHex(h, Math.min(s + 5,  100), Math.max(l - 18, 6)),
         darker:  hslToHex(h, Math.min(s + 10, 100), Math.max(l - 34, 3)),
         light:   hslToHex(h, Math.max(s - 8,  0),   Math.min(l + 18, 92)),
         lighter: hslToHex(h, Math.max(s - 18, 0),   Math.min(l + 32, 96)),
+        isLight
     };
 }
 
 /** Gera o bloco de CSS variables inline para um card element */
 export function colorVars(hex) {
     const c = deriveColors(hex);
-    return `--c-base:${c.base};--c-dark:${c.dark};--c-darker:${c.darker};--c-light:${c.light};--c-lighter:${c.lighter};`;
+    const contrast = c.isLight ? '#000000' : '#ffffff';
+    const shadow   = c.isLight ? 'rgba(0,0,0,0.8)' : 'rgba(0,0,0,0.8)'; // Sombras escuras sempre ajudam no branco
+    const titleShadow = c.isLight ? '#000000' : (c.darker || 'rgba(0,0,0,0.8)');
+
+    return `--c-base:${c.base};--c-dark:${c.dark};--c-darker:${c.darker};--c-light:${c.light};--c-lighter:${c.lighter};--c-contrast:${contrast};--c-shadow-title:${titleShadow};`;
 }
