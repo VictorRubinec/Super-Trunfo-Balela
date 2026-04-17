@@ -1,11 +1,20 @@
 import Form     from './components/form.js';
 import CardList from './components/card-list.js';
+import PackageManager from './components/package-manager.js';
+import PrintManager from './components/print-manager.js';
+import AuthManager from './components/auth-manager.js';
+import AdminManager from './components/admin-manager.js';
 import ApiClient from './utils/api-client.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
 
+    // Inicializar Managers
+    AdminManager.init();
+    await AuthManager.init();
+    await PackageManager.init();
     Form.init();
     await CardList.init();
+    await PrintManager.init();
 
     CardList.onEdit = (card) => {
         Form.populate(card);
@@ -53,55 +62,5 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 
-    const formatSelector = document.getElementById('format-selector');
-    const formatTrigger  = document.getElementById('format-trigger');
-    const formatText     = document.getElementById('format-selected-text');
-    let currentFormat    = 'a4';
-
-    formatTrigger?.addEventListener('click', (e) => {
-        e.stopPropagation();
-        formatSelector?.classList.toggle('open');
-    });
-
-    document.addEventListener('click', () => {
-        formatSelector?.classList.remove('open');
-    });
-
-    formatSelector?.querySelectorAll('.dropdown-opt').forEach(opt => {
-        opt.addEventListener('click', () => {
-            currentFormat = opt.dataset.value;
-            formatText.textContent = opt.textContent;
-            formatSelector.classList.remove('open');
-        });
-    });
-
-    document.getElementById('btn-export-pdf')?.addEventListener('click', () => {
-        const cutmarks = document.getElementById('toggle-cutmarks')?.checked ?? false;
-        const bleed    = parseFloat(document.getElementById('input-bleed')?.value || '3');
-        ApiClient.exportPdf(currentFormat, cutmarks, bleed);
-    });
-
-    document.getElementById('btn-export-backs')?.addEventListener('click', () => {
-        const cutmarks = document.getElementById('toggle-cutmarks')?.checked ?? false;
-        const bleed    = parseFloat(document.getElementById('input-bleed')?.value || '3');
-        ApiClient.exportPdfBacks(currentFormat, cutmarks, bleed);
-    });
-
-    document.getElementById('btn-export-csv')?.addEventListener('click', () => {
-        ApiClient.exportCsv();
-    });
-
-    document.getElementById('input-import-csv')?.addEventListener('change', async (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
-        try {
-            const result = await ApiClient.importCsv(file);
-            await CardList._loadFromServer();    // recarrega lista completa
-            alert(`${result.imported} carta(s) importada(s) com sucesso!`);
-        } catch (err) {
-            alert('Erro ao importar CSV:\n' + err.message);
-        }
-        e.target.value = '';    // reseta o input
-    });
-
+    // Removido gerenciador de formato antigo (agora no modal de impressão)
 });

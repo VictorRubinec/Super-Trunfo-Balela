@@ -15,8 +15,8 @@
   inset: 0;
   width: 100%;
   height: 100%;
-  object-fit: cover;
-  object-position: center center;
+  object-fit: contain;
+  object-position: center;
   z-index: 0;
 }
 
@@ -156,7 +156,7 @@
   text-align: left;
 }
 
-.gallery-item .card.v5-full-thumb { width: 165px; }
+/* Removido override */
 
 .card.v5-full-thumb.print-card {
   width: 63mm;

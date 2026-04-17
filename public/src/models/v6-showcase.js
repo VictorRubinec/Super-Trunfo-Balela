@@ -15,7 +15,7 @@ function esc(str) {
 
 export class ShowcaseModel extends CardModel {
     static id   = 'v6-showcase';
-    static name = 'Showcase 16:9 (v6)';
+    static name = 'Video';
 
     static getHtmlStructure() {
         return `
@@ -26,7 +26,7 @@ export class ShowcaseModel extends CardModel {
                     </div>
 
                     <div class="v6-photo-container">
-                        <img class="card-photo" src="" alt="" style="display:none;" />
+                        <img class="card-photo" src="" alt="" style="display:none;" draggable="false" />
                         <div class="card-photo-placeholder">
                             <span>16:9 ART</span>
                         </div>
@@ -71,7 +71,14 @@ export class ShowcaseModel extends CardModel {
         const photoEl = card.querySelector('.card-photo');
         const placeholderEl = card.querySelector('.card-photo-placeholder');
         if (cardData.foto) {
-            if (photoEl) { photoEl.src = cardData.foto; photoEl.style.display = 'block'; }
+            if (photoEl) { 
+                photoEl.src = cardData.foto; 
+                photoEl.style.display = 'block'; 
+                const zoom = cardData.zoom || 1;
+                const px   = cardData.pos_x || 0;
+                const py   = cardData.pos_y || 0;
+                photoEl.style.transform = `translate(${px}px, ${py}px) scale(${zoom})`;
+            }
             if (placeholderEl) placeholderEl.style.display = 'none';
         } else {
             if (photoEl) photoEl.style.display = 'none';
@@ -86,7 +93,7 @@ export class ShowcaseModel extends CardModel {
 
     static toHTML(cardData) {
         const photoHTML = cardData.foto 
-            ? `<img class="card-photo" src="${esc(cardData.foto)}" alt="" />` 
+            ? `<img class="card-photo" src="${esc(cardData.foto)}" alt="" style="transform: translate(${cardData.pos_x || 0}px, ${cardData.pos_y || 0}px) scale(${cardData.zoom || 1});" draggable="false" />` 
             : `<div class="card-photo-placeholder"><span>16:9 ART</span></div>`;
 
         const attrRowsHTML = ATTR_KEYS.map(({ key, label }) => `

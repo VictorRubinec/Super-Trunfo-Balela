@@ -22,6 +22,9 @@
   <link rel="stylesheet" href="/css/models/v5-full-thumb.css" />
   <link rel="stylesheet" href="/css/models/v6-showcase.css" />
   <link rel="stylesheet" href="/css/card-back.css" />
+  
+  <!-- Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 
@@ -34,7 +37,16 @@
           <span class="header-sub">Gerador de Cartas Super Trunfo</span>
         </div>
       </div>
-      <div class="header-badge">Canal Balela</div>
+      <!-- <div class="header-badge">Canal Balela</div> -->
+      
+      <div class="header-actions" id="user-controls">
+        <button class="btn-login" id="btn-show-login">Entrar</button>
+        <div class="user-profile hidden" id="user-profile">
+            <span class="user-email" id="display-user-email"></span>
+            <span class="user-role-badge" id="display-user-role"></span>
+            <button class="btn-logout" id="btn-logout">Sair</button>
+        </div>
+      </div>
     </div>
   </header>
 
@@ -47,28 +59,25 @@
         <form id="card-form" class="card-form" novalidate>
 
           <div class="form-group">
-            <label class="form-label" for="field-titulo">Título</label>
+            <label class="form-label">Título</label>
             <input id="field-titulo" class="form-input" type="text"
               placeholder="Ex: CALANGO PUNK" maxlength="40" />
           </div>
 
           <div class="form-group">
-            <label class="form-label" for="field-cor">Cor Tema</label>
-            <input id="field-cor" class="form-input" type="color" value="#7B2FBE"
-              style="padding: 0; height: 38px; cursor: pointer;" />
+            <label class="form-label">Cor Tema</label>
+            <input id="field-cor" class="form-input" type="color" value="#7B2FBE" />
           </div>
 
           <div class="form-group">
-            <label class="form-label" for="field-tipo">Tipo</label>
+            <label class="form-label">Tipo</label>
             <select id="field-tipo" class="form-input form-select">
-              <option value="">Selecione o tipo...</option>
+              <option value="Video">Video</option>
               <option value="Baleler">Baleler</option>
               <option value="Produção">Produção</option>
+              <option value="Professor">Professor</option>
               <option value="Convidado">Convidado</option>
-              <option value="Meme">Meme</option>
               <option value="Momento">Momento</option>
-              <option value="Personagem">Personagem</option>
-              <option value="Video">Video</option>
             </select>
           </div>
 
@@ -78,7 +87,7 @@
 
               <div class="attr-field">
                 <div class="attr-field-header">
-                  <label class="attr-label" for="attr-entretenimento">Entretenimento</label>
+                  <label class="attr-label">Entretenimento</label>
                   <span class="attr-display" id="disp-entretenimento">5</span>
                 </div>
                 <input id="attr-entretenimento" class="attr-slider" type="range"
@@ -87,7 +96,7 @@
 
               <div class="attr-field">
                 <div class="attr-field-header">
-                  <label class="attr-label" for="attr-vergonha">Vergonha Alheia</label>
+                  <label class="attr-label">Vergonha Alheia</label>
                   <span class="attr-display" id="disp-vergonha">5</span>
                 </div>
                 <input id="attr-vergonha" class="attr-slider" type="range"
@@ -96,7 +105,7 @@
 
               <div class="attr-field">
                 <div class="attr-field-header">
-                  <label class="attr-label" for="attr-competencia">Competência</label>
+                  <label class="attr-label">Competência</label>
                   <span class="attr-display" id="disp-competencia">5</span>
                 </div>
                 <input id="attr-competencia" class="attr-slider" type="range"
@@ -105,7 +114,7 @@
 
               <div class="attr-field">
                 <div class="attr-field-header">
-                  <label class="attr-label" for="attr-balela">Balela</label>
+                  <label class="attr-label">Balela</label>
                   <span class="attr-display" id="disp-balela">5</span>
                 </div>
                 <input id="attr-balela" class="attr-slider" type="range"
@@ -114,7 +123,7 @@
 
               <div class="attr-field">
                 <div class="attr-field-header">
-                  <label class="attr-label" for="attr-climao">Climão</label>
+                  <label class="attr-label">Climão</label>
                   <span class="attr-display" id="disp-climao">5</span>
                 </div>
                 <input id="attr-climao" class="attr-slider" type="range"
@@ -125,20 +134,30 @@
           </div>
 
           <div class="form-group">
-            <label class="form-label" for="field-video">Pacote / Coleção</label>
-            <input id="field-video" class="form-input" type="text"
-              placeholder="Ex: PACOTE LENDÁRIO" maxlength="40" />
+            <label class="form-label">Pacote / Coleção</label>
+            <div class="field-with-action">
+              <div class="autocomplete-container">
+                <input id="field-video" class="form-input" type="text"
+                  placeholder="Ex: Aula de Muay Thai" maxlength="60" autocomplete="off" />
+                <div id="packages-autocomplete" class="autocomplete-dropdown">
+                  <!-- Populada via JS -->
+                </div>
+              </div>
+              <button type="button" class="btn btn-secondary" id="btn-manage-packages" title="Gerenciar pacotes e cores">
+                ⚙️
+              </button>
+            </div>
           </div>
 
           <div class="form-group">
-            <label class="form-label" for="field-frase">Frase Marcante</label>
+            <label class="form-label">Frase Marcante</label>
             <input id="field-frase" class="form-input" type="text"
               placeholder='Ex: "ANARQUISMO!"' maxlength="80" />
           </div>
 
           <div class="form-group">
             <label class="form-label">Foto do Personagem</label>
-            <label for="field-foto" class="upload-area" id="upload-area">
+            <label class="upload-area" id="upload-area">
               <span class="upload-icon">📁</span>
               <span class="upload-text">Clique para selecionar uma foto</span>
               <span class="upload-hint">PNG, JPG ou WEBP</span>
@@ -174,58 +193,64 @@
         <div class="preview-wrapper">
             <!-- Renderizado via Javascript (form.js) -->
         </div>
+
+        <div class="preview-controls">
+          <div class="zoom-control">
+            <label class="form-label" for="slider-zoom">Zoom</label>
+            <input id="slider-zoom" type="range" min="0.5" max="2.5" step="0.05" value="1" class="attr-slider" />
+            <span class="zoom-display" id="disp-zoom">100%</span>
+          </div>
+          <button type="button" class="btn-reset-preview" id="btn-reset-transform">
+            <span>🔄</span> RESETAR ENQUADRAMENTO
+          </button>
+        </div>
       </div>
 
     </section>
 
     <section class="actions-bar glass-panel">
       <div class="actions-left">
-        <div class="format-control">
-          <label class="toggle-label">Formato:</label>
-          <div class="custom-dropdown" id="format-selector">
-            <button class="dropdown-trigger" id="format-trigger">
-              <span id="format-selected-text">A4 (Padrão)</span>
-              <span class="dropdown-arrow"></span>
-            </button>
-            <div class="dropdown-menu" id="format-options">
-              <div class="dropdown-opt" data-value="a4">A4 (Padrão)</div>
-              <div class="dropdown-opt" data-value="super-a4">Super A4</div>
-              <div class="dropdown-opt" data-value="a3">A3</div>
-              <div class="dropdown-opt" data-value="super-a3">Super A3</div>
-            </div>
-          </div>
-        </div>
-
-        <button class="btn btn-secondary" id="btn-export-pdf">
-          📄 Exportar PDF
+        <button class="btn btn-primary" id="btn-open-print-modal">
+          🖨️ Exportar para Impressão
         </button>
-        <button class="btn btn-secondary" id="btn-export-backs">
-          🎴 Exportar Versos
-        </button>
-        <button class="btn btn-secondary" id="btn-export-csv">📊 Exportar CSV</button>
-        
-        <label for="input-import-csv" class="btn btn-secondary" id="btn-import-csv">
-          📥 Importar CSV
-          <input id="input-import-csv" type="file" accept=".csv" class="hidden-input" />
-        </label>
-      </div>
-      <div class="actions-right">
-        <div class="bleed-control">
-          <label class="toggle-label" for="input-bleed">Sangria (mm)</label>
-          <input type="number" id="input-bleed" class="form-input bleed-input" value="3" min="0" max="10" step="0.5" />
-        </div>
-        <label class="toggle-label">
-          <span class="toggle-text">✂ Marca de Corte</span>
-          <input type="checkbox" id="toggle-cutmarks" class="toggle-input" />
-          <span class="toggle-switch"></span>
-        </label>
       </div>
     </section>
 
     <section class="gallery-section">
       <div class="gallery-header">
-        <h2 class="gallery-title">Cartas Criadas</h2>
-        <span class="gallery-count" id="gallery-count">0 cartas</span>
+        <div class="gallery-header-left">
+          <h2 class="gallery-title">Cartas Criadas</h2>
+          <span class="gallery-count" id="gallery-count">0 cartas</span>
+        </div>
+        
+        <div class="gallery-controls">
+          <label class="toggle-label" title="Agrupar cartas por pacote">
+            <span class="toggle-text">Agrupar por Pacote</span>
+            <input type="checkbox" id="toggle-group-package" class="toggle-input" />
+            <span class="toggle-switch"></span>
+          </label>
+
+          <div class="view-toggles">
+            <button class="view-btn active" id="btn-grid-view" title="Grade">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="3" width="7" height="7"></rect>
+                <rect x="14" y="3" width="7" height="7"></rect>
+                <rect x="14" y="14" width="7" height="7"></rect>
+                <rect x="3" y="14" width="7" height="7"></rect>
+              </svg>
+            </button>
+            <button class="view-btn" id="btn-list-view" title="Lista">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="8" y1="6" x2="21" y2="6"></line>
+                <line x1="8" y1="12" x2="21" y2="12"></line>
+                <line x1="8" y1="18" x2="21" y2="18"></line>
+                <line x1="3" y1="6" x2="3.01" y2="6"></line>
+                <line x1="3" y1="12" x2="3.01" y2="12"></line>
+                <line x1="3" y1="18" x2="3.01" y2="18"></line>
+              </svg>
+            </button>
+          </div>
+        </div>
       </div>
       <div class="gallery-grid" id="gallery-grid">
         <div class="gallery-empty" id="gallery-empty">
@@ -241,6 +266,287 @@
   <footer class="app-footer">
     <span>Balela Trunfo © 2026 · Victor Zanin Rubinec</span>
   </footer>
+
+  <!-- Modal Gerenciar Pacotes -->
+  <div class="modal" id="packages-modal">
+    <div class="modal-content glass-panel">
+      <div class="modal-header">
+        <h2 class="panel-title">Gerenciar Pacotes</h2>
+        <button type="button" class="btn-close-modal" id="btn-close-packages">✕</button>
+      </div>
+      <div class="modal-body">
+        <form id="package-editor-form" class="package-editor-form">
+          <input type="hidden" id="pkg-id" />
+          <div class="form-row">
+            <input type="text" id="pkg-nome" class="form-input" placeholder="Nome do Vídeo / Pacote" required />
+            <input type="color" id="pkg-cor" class="form-input color-input" title="Cor Tema" />
+            <button type="submit" class="btn btn-primary" id="btn-save-package">Salvar</button>
+          </div>
+        </form>
+        <div class="packages-list-container">
+          <table class="packages-table">
+            <thead>
+              <tr>
+                <th>Nome</th>
+                <th>Cor</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody id="packages-table-body">
+              <!-- Populada via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Impressão -->
+  <div class="modal" id="print-modal">
+    <div class="modal-content glass-panel print-modal">
+      <div class="modal-header">
+        <div class="header-main">
+          <h2 class="panel-title">Configurar Impressão</h2>
+          <p class="summary-hint" style="margin-top: -15px; margin-bottom: 20px;">Frentes e Versos serão gerados em um arquivo ZIP</p>
+        </div>
+        <button class="btn-close-modal" id="btn-close-print">×</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="print-config-grid">
+          <!-- Coluna Esquerda: Configurações Gerais -->
+          <div class="print-config-sidebar">
+            <div class="form-group">
+              <label class="form-label">Nome do Projeto</label>
+              <input type="text" id="print-project-name" class="form-input" placeholder="Ex: Balela_Trunfo_V1" />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Formato da Folha</label>
+              <div class="custom-dropdown" id="print-format-selector">
+                <button class="dropdown-trigger" id="print-format-trigger">
+                  <span id="print-format-selected-text">A4 (210 x 297 mm)</span>
+                  <span class="dropdown-arrow"></span>
+                </button>
+                <div class="dropdown-menu" id="print-format-options">
+                  <div class="dropdown-opt" data-value="a4">A4 (210 x 297 mm)</div>
+                  <div class="dropdown-opt" data-value="super-a4">Super A4 (225 x 320 mm)</div>
+                  <div class="dropdown-opt" data-value="a3">A3 (297 x 420 mm)</div>
+                  <div class="dropdown-opt" data-value="super-a3">Super A3 (320 x 450 mm)</div>
+                </div>
+              </div>
+              <div class="format-info-badge" id="format-capacity-info">
+                Cabe 9 cartas por folha
+              </div>
+            </div>
+
+            <div class="print-options-row">
+              <div class="form-group">
+                <label class="form-label">Sangria (mm)</label>
+                <input type="number" id="print-bleed" class="form-input" value="3" min="0" max="10" step="0.5" />
+              </div>
+              <div class="form-group">
+                <label class="toggle-label" title="Adiciona linhas para guiar o corte">
+                  <span class="toggle-text">Marcas de Corte</span>
+                  <input type="checkbox" id="print-cutmarks" class="toggle-input" checked />
+                  <span class="toggle-switch"></span>
+                </label>
+              </div>
+            </div>
+
+            <div class="print-summary-panel">
+              <div class="summary-row">
+                <span>Total de Cartas:</span>
+                <span id="summary-total-cards">0</span>
+              </div>
+              <div class="summary-row">
+                <span>Estimativa de Folhas:</span>
+                <span id="summary-total-sheets">0</span>
+              </div>
+              <div class="summary-hint">
+                * Frente e Verso em arquivos separados no ZIP
+              </div>
+            </div>
+
+            <button class="btn btn-primary btn-full" id="btn-generate-zip">
+              📦 Gerar Arquivos para Impressão
+            </button>
+          </div>
+
+          <!-- Coluna Direita: Seleção de Cartas -->
+          <div class="print-selection-area">
+            <div class="selection-header">
+              <h3>Seleção de Cartas</h3>
+              <div class="selection-actions">
+                <button class="btn btn-ghost btn-sm" id="btn-print-select-all">Marcar Tudo</button>
+                <button class="btn btn-ghost btn-sm" id="btn-print-select-none">Limpar</button>
+              </div>
+            </div>
+            <div class="print-cards-tree" id="print-selection-tree">
+              <!-- Populada via JS -->
+              <div class="loading-simple">Carregando cartas...</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Login -->
+  <div class="modal" id="login-modal">
+    <div class="modal-content glass-panel" style="max-width: 400px;">
+      <div class="modal-header">
+        <h2 class="panel-title">Entrar na Conta</h2>
+        <button class="btn-close-modal" id="btn-close-login">×</button>
+      </div>
+      <form id="login-form" class="card-form">
+        <div class="form-group">
+          <label class="form-label">E-mail</label>
+          <input type="email" id="login-email" class="form-input" placeholder="seu@email.com" required />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Senha</label>
+          <input type="password" id="login-password" class="form-input" placeholder="••••••••" required />
+          <div style="text-align: right; margin-top: 4px;">
+            <button type="button" class="btn-logout" id="btn-forgot-password" style="font-size: 10px;">Esqueci minha senha</button>
+          </div>
+        </div>
+        <div id="login-error" class="error-text hidden" style="color: #f87171; font-size: 12px; font-weight: 600; margin-top: -10px;"></div>
+        <button type="submit" class="btn btn-primary btn-full">Entrar</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal de Reset de Senha -->
+  <div class="modal" id="reset-password-modal">
+    <div class="modal-content glass-panel" style="max-width: 400px;">
+      <div class="modal-header">
+        <h2 class="panel-title">Redefinir Senha</h2>
+        <button class="btn-close-modal" id="btn-close-reset">×</button>
+      </div>
+      <p style="color: var(--text-3); font-size: 13px; margin-bottom: 20px;">Digite sua nova senha abaixo para recuperar o acesso.</p>
+      <form id="reset-password-form" class="card-form">
+        <div class="form-group">
+          <label class="form-label">Nova Senha</label>
+          <input type="password" id="reset-new-password" class="form-input" placeholder="Min. 6 caracteres" required minlength="6" />
+        </div>
+        <div id="reset-error" class="error-text hidden" style="color: #f87171; font-size: 12px; font-weight: 600; margin-top: -10px;"></div>
+        <button type="submit" class="btn btn-primary btn-full">Salvar Nova Senha</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Painel Administrativo -->
+  <section class="admin-section container hidden" id="admin-panel">
+    <div class="glass-panel">
+      <div class="panel-header">
+        <h2 class="panel-title">🛡️ Painel do Admin</h2>
+        <div class="admin-tabs">
+          <button class="btn btn-secondary active" data-tab="users">Usuários</button>
+          <button class="btn btn-secondary" data-tab="logs">Auditoria</button>
+        </div>
+      </div>
+
+      <!-- Aba Usuários -->
+      <div class="admin-tab-content active" id="tab-users">
+        <div class="invite-box">
+          <input type="email" id="invite-email" placeholder="E-mail do novo membro">
+          <select id="invite-role" class="admin-select">
+            <option value="member">Membro</option>
+            <option value="admin">Admin</option>
+            <option value="visitor">Visitante</option>
+          </select>
+          <button class="btn btn-primary" id="btn-invite">Convidar</button>
+          <button class="btn btn-secondary" id="btn-show-add-user"><span>✚</span> Adicionar Usuário</button>
+        </div>
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>E-mail</th>
+              <th>Cargo</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody id="users-list">
+            <!-- Injetado via JS -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Aba Auditoria -->
+      <div class="admin-tab-content" id="tab-logs">
+        <div class="logs-container" id="logs-list">
+          <!-- Injetado via JS -->
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Modal Adicionar Usuário Diretamente -->
+  <div class="modal" id="add-user-modal">
+    <div class="modal-content glass-panel" style="max-width: 450px;">
+      <div class="modal-header">
+        <h2 class="panel-title">✚ Criar Novo Usuário</h2>
+        <button class="btn-close-modal" id="btn-close-add-user">×</button>
+      </div>
+      <form id="add-user-form" class="card-form">
+        <div class="form-group">
+          <label class="form-label">E-mail</label>
+          <input type="email" id="add-user-email" class="form-input" placeholder="exemplo@email.com" required />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Senha Inicial</label>
+          <input type="password" id="add-user-password" class="form-input" placeholder="Min. 6 caracteres" required minlength="6" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Cargo</label>
+          <select id="add-user-role" class="form-input form-select">
+            <option value="member">Membro</option>
+            <option value="admin">Admin</option>
+            <option value="visitor">Visitante</option>
+          </select>
+        </div>
+        <div style="margin-top: 10px;">
+          <button type="submit" class="btn btn-primary btn-full">Criar Usuário</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal de Primeiro Acesso (Definir Senha) -->
+  <div class="modal" id="onboarding-modal">
+    <div class="modal-content glass-panel">
+      <div class="modal-header">
+        <h2 class="panel-title">Bem-vindo ao Balela! 🚀</h2>
+      </div>
+      <p class="onboarding-desc">Você foi convidado para a equipe. Defina sua senha para começar.</p>
+      <form id="onboarding-form">
+        <div class="form-group">
+          <label>Nova Senha</label>
+          <input type="password" id="onboarding-password" required minlength="6">
+        </div>
+        <div class="form-group">
+          <label>Confirme a Senha</label>
+          <input type="password" id="onboarding-confirm" required>
+        </div>
+        <button type="submit" class="btn btn-primary btn-full">Começar a Jogar</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal de Confirmação Premium -->
+  <div class="modal" id="confirm-modal">
+    <div class="modal-content glass-panel" style="max-width: 350px; text-align: center;">
+      <div style="font-size: 40px; margin-bottom: 10px;">⚠️</div>
+      <h2 class="panel-title" id="confirm-title" style="margin-bottom: 15px;">Confirmar Exclusão</h2>
+      <p id="confirm-message" style="color: var(--text-3); font-size: 14px; margin-bottom: 25px;"></p>
+      <div style="display: flex; gap: 12px; justify-content: center;">
+        <button class="btn btn-secondary" id="btn-confirm-cancel" style="flex: 1; padding: 10px;">Cancelar</button>
+        <button class="btn btn-danger" id="btn-confirm-ok" style="flex: 1; padding: 10px;">Deletar</button>
+      </div>
+    </div>
+  </div>
+
   <script type="module" src="/src/app.js"></script>
 
 </body>

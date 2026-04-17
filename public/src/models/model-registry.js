@@ -5,13 +5,11 @@ import { ThumbModel } from './v4-thumb.js';
 import { FullThumbModel } from './v5-full-thumb.js';
 import { ShowcaseModel } from './v6-showcase.js';
 
+/** Lista filtrada de modelos para a versão final. */
 const MODELS = [
-    CristalModel,
-    EspecialModel,
-    FullArtModel,
-    ThumbModel,
-    FullThumbModel,
-    ShowcaseModel
+    CristalModel,  // Comum
+    ThumbModel,    // FullArt
+    ShowcaseModel  // Video
 ];
 
 const ModelRegistry = {

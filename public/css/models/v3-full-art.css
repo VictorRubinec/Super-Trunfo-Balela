@@ -21,8 +21,8 @@
   inset: -2px; /* Slight bleed to avoid edges */
   width: calc(100% + 4px);
   height: calc(100% + 4px);
-  object-fit: cover;
-  object-position: center 20%;
+  object-fit: contain;
+  object-position: center;
   z-index: 0;
   filter: brightness(0.8) saturate(1.1);
 }
@@ -173,7 +173,7 @@
   filter: brightness(2);
 }
 
-.gallery-item .card.v3-full-art { width: 165px; }
+/* Removido override */
 
 .card.v3-full-art.print-card {
   width: 63mm;

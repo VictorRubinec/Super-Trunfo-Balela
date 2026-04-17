@@ -29,7 +29,7 @@ function esc(str) {
 
 export class CristalModel extends CardModel {
     static id   = 'v1-default';
-    static name = 'Comum (v1)';
+    static name = 'Comum';
 
     static getHtmlStructure() {
         return `
@@ -40,7 +40,7 @@ export class CristalModel extends CardModel {
                     </div>
                     <div class="card-photo-frame">
                         ${PLACEHOLDER_HTML}
-                        <img class="card-photo" src="" alt="" style="display:none;" />
+                        <img class="card-photo" src="" alt="" style="display:none;" draggable="false" />
                     </div>
                     <div class="card-tipo-badge">
                         <span class="card-tipo-text">PERSONAGEM</span>
@@ -83,7 +83,14 @@ export class CristalModel extends CardModel {
         const photoEl       = card.querySelector('.card-photo');
         const placeholderEl = card.querySelector('.card-photo-placeholder');
         if (cardData.foto) {
-            if (photoEl) { photoEl.src = cardData.foto; photoEl.style.display = 'block'; }
+            if (photoEl) { 
+                photoEl.src = cardData.foto; 
+                photoEl.style.display = 'block'; 
+                const zoom = cardData.zoom || 1;
+                const px   = cardData.pos_x || 0;
+                const py   = cardData.pos_y || 0;
+                photoEl.style.transform = `translate(${px}px, ${py}px) scale(${zoom})`;
+            }
             if (placeholderEl) placeholderEl.style.display = 'none';
         } else {
             if (photoEl) photoEl.style.display = 'none';
@@ -98,7 +105,7 @@ export class CristalModel extends CardModel {
 
     static toHTML(cardData) {
         const photoHTML = cardData.foto
-            ? `<img class="card-photo" src="${esc(cardData.foto)}" alt="" />`
+            ? `<img class="card-photo" src="${esc(cardData.foto)}" alt="" style="transform: translate(${cardData.pos_x || 0}px, ${cardData.pos_y || 0}px) scale(${cardData.zoom || 1});" draggable="false" />`
             : PLACEHOLDER_HTML;
 
         const attrRowsHTML = ATTR_KEYS.map(({ key, label }) => `

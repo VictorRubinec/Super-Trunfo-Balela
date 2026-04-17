@@ -1,7 +1,26 @@
+import { SUPABASE_URL } from '../config.js';
+
 const BASE = '/api';
+
+/** Helper para pegar o token sem depender do AuthManager (evita ciclo) */
+function getLocalToken() {
+    const projectID = new URL(SUPABASE_URL).hostname.split('.')[0];
+    const storageKey = `sb-${projectID}-auth-token`;
+    const session = JSON.parse(localStorage.getItem(storageKey));
+    return session?.access_token || null;
+}
 
 /** Wrapper fetch com tratamento de erro padrão */
 async function apiFetch(url, options = {}) {
+    // Adicionar token se existir
+    const token = getLocalToken();
+    if (token) {
+        options.headers = {
+            ...options.headers,
+            'Authorization': `Bearer ${token}`
+        };
+    }
+
     const res = await fetch(url, options);
     if (!res.ok) {
         const body = await res.json().catch(() => ({}));
@@ -12,8 +31,32 @@ async function apiFetch(url, options = {}) {
 
 const ApiClient = {
 
-        getCards() {
+    getCards() {
         return apiFetch(`${BASE}/cards`);
+    },
+
+    getPackages() {
+        return apiFetch(`${BASE}/packages`);
+    },
+
+    createPackage(pkgData) {
+        return apiFetch(`${BASE}/packages`, {
+            method:  'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body:    JSON.stringify(pkgData),
+        });
+    },
+
+    updatePackage(id, pkgData) {
+        return apiFetch(`${BASE}/packages/${id}`, {
+            method:  'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body:    JSON.stringify(pkgData),
+        });
+    },
+
+    deletePackage(id) {
+        return apiFetch(`${BASE}/packages/${id}`, { method: 'DELETE' });
     },
 
     createCard(cardData) {
@@ -61,6 +104,68 @@ const ApiClient = {
     exportPdfBacks(format = 'a4', cutmarks = false, bleed = 3) {
         const params = new URLSearchParams({ format, cutmarks, bleed });
         window.open(`${BASE}/export/pdf-backs?${params}`, '_blank');
+    },
+
+    async exportBundleZip(config) {
+        const res = await fetch(`${BASE}/export/bundle`, {
+            method:  'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${AuthManager.getToken()}` },
+            body:    JSON.stringify(config),
+        });
+
+        if (!res.ok) {
+            const body = await res.json().catch(() => ({}));
+            throw new Error(body.error || `Erro HTTP ${res.status}`);
+        }
+
+        const blob = await res.blob();
+        const url  = window.URL.createObjectURL(blob);
+        const a    = document.createElement('a');
+        a.href     = url;
+        a.download = `${config.name}.zip`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        a.remove();
+    },
+
+    // --- ADMIN ---
+    async getProfiles() {
+        return apiFetch(`${BASE}/admin/profiles`);
+    },
+
+    async inviteUser(email, role = 'member') {
+        return apiFetch(`${BASE}/admin/invite`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, role })
+        });
+    },
+
+    async createUser(email, password, role = 'member') {
+        return apiFetch(`${BASE}/admin/users`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password, role })
+        });
+    },
+
+    async updateRole(userId, role) {
+        return apiFetch(`${BASE}/admin/profiles/${userId}/role`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ role })
+        });
+    },
+
+    async deleteProfile(userId) {
+        return apiFetch(`${BASE}/admin/profiles/${userId}`, {
+            method: 'DELETE'
+        });
+    },
+
+    async getAuditLogs() {
+        return apiFetch(`${BASE}/admin/logs`);
     },
 };
 

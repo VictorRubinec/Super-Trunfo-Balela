@@ -16,11 +16,14 @@
 - [ ] Adicionar filtro "Agrupar por Pacote" na galeria
 
 ## Fase 3: Supabase (Backend)
-- [ ] Configurar conexão inicial (`supabase-js`)
-- [ ] Migrar tabela de cartas local para banco remoto
-- [ ] Implementar Autenticação e Perfis (com permissões)
-- [ ] Configurar Supabase Storage para fotos
+- [x] Configurar conexão inicial (`supabase-js`)
+- [x] Migrar tabela de cartas local para banco remoto
+- [x] Configurar Supabase Storage para fotos
+- [x] Implementar Autenticação e Perfis (com permissões)
 
 ## Fase 4: Auditoria e Manutenção
-- [ ] Implementar gatilhos de log para cada ação (CRUD)
-- [ ] Desenvolver script de Keep-Alive (Ping diário)
+- [x] Implementar gatilhos de log para cada ação (CRUD)
+- [x] Desenvolver script de Keep-Alive (Ping diário)
+- [x] Criar Painel Admin para gestão de usuários e logs
+- [x] Implementar fluxo de Onboarding (Definição de senha via convite)
+- [x] Criar configuração de deployment para o Vercel (`vercel.json`)

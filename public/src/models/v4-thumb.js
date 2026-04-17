@@ -15,12 +15,12 @@ function esc(str) {
 
 export class ThumbModel extends CardModel {
     static id   = 'v4-thumb';
-    static name = 'Thumbnail (v4)';
+    static name = 'FullArt';
 
     static getHtmlStructure() {
         return `
             <div class="card v4-thumb" id="card-preview" style="--c-base: #7B2FBE;">
-                <img class="card-photo-bg" src="" alt="" style="display:none;" />
+                <img class="card-photo-bg" src="" alt="" style="display:none;" draggable="false" />
                 <div class="card-photo-placeholder-bg"></div>
                 <div class="card-gradient-overlay"></div>
                 
@@ -66,7 +66,14 @@ export class ThumbModel extends CardModel {
         const photoBg = card.querySelector('.card-photo-bg');
         const placeholderBg = card.querySelector('.card-photo-placeholder-bg');
         if (cardData.foto) {
-            if (photoBg) { photoBg.src = cardData.foto; photoBg.style.display = 'block'; }
+            if (photoBg) { 
+                photoBg.src = cardData.foto; 
+                photoBg.style.display = 'block'; 
+                const zoom = cardData.zoom || 1;
+                const px   = cardData.pos_x || 0;
+                const py   = cardData.pos_y || 0;
+                photoBg.style.transform = `translate(${px}px, ${py}px) scale(${zoom})`;
+            }
             if (placeholderBg) placeholderBg.style.display = 'none';
         } else {
             if (photoBg) photoBg.style.display = 'none';
@@ -81,7 +88,7 @@ export class ThumbModel extends CardModel {
 
     static toHTML(cardData) {
         const photoHTML = cardData.foto 
-            ? `<img class="card-photo-bg" src="${esc(cardData.foto)}" alt="" />` 
+            ? `<img class="card-photo-bg" src="${esc(cardData.foto)}" alt="" style="transform: translate(${cardData.pos_x || 0}px, ${cardData.pos_y || 0}px) scale(${cardData.zoom || 1});" draggable="false" />` 
             : `<div class="card-photo-placeholder-bg"></div>`;
 
         const attrRowsHTML = ATTR_KEYS.map(({ key, label }) => `

@@ -1,55 +1,127 @@
 const express = require('express');
-const { v4: uuidv4 } = require('uuid');
-const path = require('path');
-const fs   = require('fs');
+const { supabase } = require('../services/supabase-service');
+const LogService = require('../services/log-service');
+
+const { authenticate, authorize } = require('../middleware/auth');
 
 const router = express.Router();
-const DATA_FILE = path.join(__dirname, '../../data/cards.json');
 
-function readCards() {
-    try {
-        return JSON.parse(fs.readFileSync(DATA_FILE, 'utf-8'));
-    } catch {
-        return [];
-    }
-}
-
-function writeCards(cards) {
-    fs.writeFileSync(DATA_FILE, JSON.stringify(cards, null, 2), 'utf-8');
-}
-
-router.get('/', (req, res) => {
-    res.json(readCards());
-});
-
-router.post('/', (req, res) => {
-    const cards   = readCards();
-    const newCard = {
-        ...req.body,
-        id:        uuidv4(),
-        criado_em: new Date().toISOString(),
+// Helper para converter colunas do DB para o formato JSON do Frontend
+function mapFromDb(card) {
+    return {
+        ...card,
+        atributos: {
+            entretenimento: card.attr_ent,
+            vergonha_alheia: card.attr_vgh,
+            competencia:    card.attr_cmp,
+            balela:         card.attr_bal,
+            climao:         card.attr_clm
+        }
     };
-    cards.push(newCard);
-    writeCards(cards);
-    res.status(201).json(newCard);
+}
+
+// Helper para converter JSON do Frontend para o formato do DB
+function mapToDb(body) {
+    const card = { ...body };
+    if (body.atributos) {
+        card.attr_ent = body.atributos.entretenimento;
+        card.attr_vgh = body.atributos.vergonha_alheia;
+        card.attr_cmp = body.atributos.competencia;
+        card.attr_bal = body.atributos.balela;
+        card.attr_clm = body.atributos.climao;
+        delete card.atributos;
+    }
+    return card;
+}
+
+router.get('/', async (req, res) => {
+    const { data, error } = await supabase
+        .from('cards')
+        .select('*')
+        .order('criado_em', { ascending: false });
+
+    if (error) return res.status(500).json({ error: error.message });
+    res.json(data.map(mapFromDb));
 });
 
-router.put('/:id', (req, res) => {
-    const cards = readCards();
-    const idx   = cards.findIndex(c => c.id === req.params.id);
-    if (idx === -1) return res.status(404).json({ error: 'Carta não encontrada' });
+router.post('/', authenticate, authorize(['admin', 'member']), async (req, res) => {
+    const cardData = mapToDb(req.body);
+    
+    // Garantir que nenhum ID (vazio ou não) seja enviado na criação
+    delete cardData.id; 
 
-    cards[idx] = { ...cards[idx], ...req.body, id: req.params.id };
-    writeCards(cards);
-    res.json(cards[idx]);
+    const { data, error } = await req.supabase
+        .from('cards')
+        .insert([{ 
+            ...cardData, 
+            user_id: req.user.id, // Vínculo com o dono
+            criado_em: new Date().toISOString() 
+        }])
+        .select();
+
+    if (error) return res.status(500).json({ error: error.message });
+    
+    // Log Auditoria
+    await LogService.log({
+        userId: req.user.id,
+        action: 'CREATE',
+        tableName: 'cards',
+        recordId: data[0].id,
+        newData: data[0]
+    });
+
+    res.status(201).json(mapFromDb(data[0]));
 });
 
-router.delete('/:id', (req, res) => {
-    let cards = readCards();
-    const initial = cards.length;
-    cards = cards.filter(c => c.id !== req.params.id);
-    if (cards.length === initial) return res.status(404).json({ error: 'Carta não encontrada' });
-    writeCards(cards);
+router.put('/:id', authenticate, authorize(['admin', 'member']), async (req, res) => {
+    // 1. Buscar dado antigo para o log
+    const { data: oldData } = await req.supabase.from('cards').select('*').eq('id', req.params.id).single();
+    
+    const cardData = mapToDb(req.body);
+    delete cardData.id; // Evitar mudar ID
+
+    const { data, error } = await req.supabase
+        .from('cards')
+        .update(cardData)
+        .eq('id', req.params.id)
+        .select();
+
+    if (error) return res.status(500).json({ error: error.message });
+    if (!data || data.length === 0) return res.status(404).json({ error: 'Carta não encontrada' });
+    
+    // Log Auditoria
+    await LogService.log({
+        userId: req.user.id,
+        action: 'UPDATE',
+        tableName: 'cards',
+        recordId: req.params.id,
+        oldData: oldData,
+        newData: data[0]
+    });
+
+    res.json(mapFromDb(data[0]));
+});
+
+router.delete('/:id', authenticate, authorize(['admin', 'member']), async (req, res) => {
+    // 1. Buscar dado antigo para o log
+    const { data: oldData } = await req.supabase.from('cards').select('*').eq('id', req.params.id).single();
+
+    const { error } = await req.supabase
+        .from('cards')
+        .delete()
+        .eq('id', req.params.id);
+
+    if (error) return res.status(500).json({ error: error.message });
+
+    // Log Auditoria
+    await LogService.log({
+        userId: req.user.id,
+        action: 'DELETE',
+        tableName: 'cards',
+        recordId: req.params.id,
+        oldData: oldData
+    });
+
     res.json({ ok: true });
 });
 

@@ -1,4 +1,5 @@
 import ModelRegistry from '../models/model-registry.js';
+import PackageManager from './package-manager.js';
 
 function updateSliderFill(slider) {
     const min = parseFloat(slider.min) || 1;
@@ -13,6 +14,14 @@ const Form = {
     currentPhotoDataUrl: null,
     editingCardId: null,   // null = novo card; string = editando card existente
     showingBack:   false,  // Estado do preview: frente ou verso
+    
+    // Estado da transformação da imagem
+    zoom: 1,
+    posX: 0,
+    posY: 0,
+    isDragging: false,
+    startX: 0,
+    startY: 0,
 
     init() {
         this.el = {
@@ -34,13 +43,21 @@ const Form = {
             uploadPreviewImg: document.getElementById('upload-preview-img'),
             removePhotoBtn:   document.getElementById('btn-remove-photo'),
             submitBtn:        document.getElementById('btn-add-card'),
+            
+            // Novos controles
+            zoomSlider:       document.getElementById('slider-zoom'),
+            zoomDisplay:      document.getElementById('disp-zoom'),
+            resetTransformBtn: document.getElementById('btn-reset-transform'),
+            previewWrapper:   document.querySelector('.preview-wrapper'),
         };
 
         this._populateModelSelect();
 
         this._getSliderEls().forEach(s => updateSliderFill(s));
+        if (this.el.zoomSlider) updateSliderFill(this.el.zoomSlider);
 
         this._bindEvents();
+        this._bindImageEditorEvents();
         this._updatePreview();    // Renderiza preview com os valores padrão
     },
 
@@ -48,6 +65,11 @@ const Form = {
         ['titulo', 'cor', 'tipo', 'video', 'frase', 'modelo'].forEach(key => {
             this.el[key]?.addEventListener('input',  () => this._updatePreview());
             this.el[key]?.addEventListener('change', () => this._updatePreview());
+        });
+
+        this.el.video?.addEventListener('input', () => {
+            this._syncPackageColor();
+            this._updatePreview();
         });
 
         this._getSliderEls().forEach(slider => {
@@ -72,6 +94,99 @@ const Form = {
             e.preventDefault();
             this._handleSubmit();
         });
+    },
+
+    _bindImageEditorEvents() {
+        this.el.zoomSlider?.addEventListener('input', () => {
+            this.zoom = parseFloat(this.el.zoomSlider.value);
+            if (this.el.zoomDisplay) {
+                this.el.zoomDisplay.textContent = `${Math.round(this.zoom * 100)}%`;
+            }
+            updateSliderFill(this.el.zoomSlider);
+            this._updatePreview();
+        });
+
+        this.el.resetTransformBtn?.addEventListener('click', () => {
+            this.resetTransform();
+        });
+
+        // Eventos de Drag no Preview
+        const wrapper = this.el.previewWrapper;
+        if (wrapper) {
+            wrapper.addEventListener('mousedown', e => this._onDragStart(e));
+            
+            // Impede o comportamento padrão do navegador de 'pegar' a imagem
+            wrapper.addEventListener('dragstart', e => e.preventDefault());
+            
+            window.addEventListener('mousemove', e => {
+                if (this.isDragging) {
+                    this._onDragMove(e);
+                }
+            });
+            window.addEventListener('mouseup',   () => this._onDragEnd());
+            
+            // Touch
+            wrapper.addEventListener('touchstart', e => this._onDragStart(e.touches[0]));
+            window.addEventListener('touchmove',  e => {
+                if (this.isDragging) {
+                    e.preventDefault(); // Prevent scrolling while dragging
+                    this._onDragMove(e.touches[0]);
+                }
+            }, { passive: false });
+            window.addEventListener('touchend',   () => this._onDragEnd());
+        }
+    },
+
+    _onDragStart(e) {
+        if (this.showingBack || !this.currentPhotoDataUrl) return;
+        this.isDragging = true;
+        this.startX = e.clientX - this.posX;
+        this.startY = e.clientY - this.posY;
+        this.el.previewWrapper.style.cursor = 'grabbing';
+    },
+
+    _onDragMove(e) {
+        if (!this.isDragging) return;
+        this.posX = e.clientX - this.startX;
+        this.posY = e.clientY - this.startY;
+        
+        if (this.ticking) return;
+        this.ticking = true;
+        
+        requestAnimationFrame(() => {
+            this._applyImageTransform();
+            this.ticking = false;
+        });
+    },
+
+    /** Aplica apenas a transformação da imagem para performance máxima durante drag */
+    _applyImageTransform() {
+        const photo = document.querySelector('.card .card-photo, .card .card-photo-bg');
+        if (photo) {
+            photo.style.transform = `translate(${this.posX}px, ${this.posY}px) scale(${this.zoom})`;
+        }
+    },
+
+    _onDragEnd() {
+        if (!this.isDragging) return;
+        this.isDragging = false;
+        if (this.el.previewWrapper) {
+            this.el.previewWrapper.style.cursor = '';
+        }
+    },
+
+    resetTransform() {
+        this.zoom = 1;
+        this.posX = 0;
+        this.posY = 0;
+        if (this.el.zoomSlider) {
+            this.el.zoomSlider.value = 1;
+            updateSliderFill(this.el.zoomSlider);
+        }
+        if (this.el.zoomDisplay) {
+            this.el.zoomDisplay.textContent = '100%';
+        }
+        this._updatePreview();
     },
 
     _getSliderEls() {
@@ -106,6 +221,10 @@ const Form = {
             foto:         this.currentPhotoDataUrl,
             foto_arquivo: this.el.foto?.files[0]?.name || '',
             modelo:       this.el.modelo?.value || 'v1-default',
+            // Novos campos
+            zoom:         this.zoom,
+            pos_x:        this.posX,
+            pos_y:        this.posY,
         };
     },
 
@@ -118,6 +237,19 @@ const Form = {
         if (this.el.video)         this.el.video.value         = cardData.video_origem  || '';
         if (this.el.frase)         this.el.frase.value         = cardData.frase         || '';
         if (this.el.modelo)        this.el.modelo.value        = cardData.modelo        || 'v1-default';
+
+        // Transformação
+        this.zoom = cardData.zoom  ?? 1;
+        this.posX = cardData.pos_x ?? 0;
+        this.posY = cardData.pos_y ?? 0;
+
+        if (this.el.zoomSlider) {
+            this.el.zoomSlider.value = this.zoom;
+            updateSliderFill(this.el.zoomSlider);
+        }
+        if (this.el.zoomDisplay) {
+            this.el.zoomDisplay.textContent = `${Math.round(this.zoom * 100)}%`;
+        }
 
         const a = cardData.atributos || {};
         if (this.el.entretenimento) this.el.entretenimento.value = a.entretenimento  ?? 5;
@@ -165,7 +297,16 @@ const Form = {
         if (this.el.submitBtn) {
             this.el.submitBtn.innerHTML = '<span>✚</span> Adicionar Carta';
         }
-        this._updatePreview();
+        this.resetTransform();
+    },
+
+    _syncPackageColor() {
+        const packageName = this.el.video?.value;
+        if (!packageName) return;
+        const color = PackageManager.getColorForPackage(packageName);
+        if (color && this.el.cor) {
+            this.el.cor.value = color;
+        }
     },
 
     _updatePreview() {
@@ -191,7 +332,7 @@ const Form = {
         return `
             <div class="card-back">
                 <div class="back-content">
-                    <img src="/assets/logo/logo-4.png" class="back-logo-main" alt="Balela Logo" />
+                    <img src="assets/logo/logo-4.png" class="back-logo-main" alt="Balela Logo" />
                 </div>
             </div>`;
     },

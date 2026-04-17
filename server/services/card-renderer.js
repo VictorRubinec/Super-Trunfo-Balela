@@ -29,8 +29,6 @@ function hslToHex(h, s, l) {
     return `#${f(0)}${f(8)}${f(4)}`;
 }
 
-exports.colorVars = colorVars;
-
 function colorVars(hex) {
     if (!hex || !/^#[0-9a-fA-F]{6}$/.test(hex)) hex = '#7B2FBE';
     const { h, s, l } = hexToHsl(hex);
@@ -64,7 +62,7 @@ const ATTR_KEYS_FULL = [
 
 function renderV1(card, base) {
     const photoHTML = card.foto
-        ? `<img class="card-photo" src="${base}${card.foto}" alt="" />`
+        ? `<img class="card-photo" src="${base}${card.foto}" alt="" style="transform: translate(${card.pos_x || 0}px, ${card.pos_y || 0}px) scale(${card.zoom || 1});" />`
         : `<div class="card-photo-placeholder"><svg class="placeholder-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z"/><path d="M4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/></svg><span>Sem foto</span></div>`;
 
     const attrRowsHTML = ATTR_KEYS_FULL.map(({ key, label }) => `
@@ -87,7 +85,7 @@ function renderV1(card, base) {
 }
 
 function renderV2(card, base) {
-    const photoHTML = card.foto ? `<img class="card-photo-bg" src="${base}${card.foto}" alt="" />` : '';
+    const photoHTML = card.foto ? `<img class="card-photo-bg" src="${base}${card.foto}" alt="" style="transform: translate(${card.pos_x || 0}px, ${card.pos_y || 0}px) scale(${card.zoom || 1});" />` : '';
     const attrRowsHTML = ATTR_KEYS.map(({ key, label }) => `
         <div class="attr-row">
             <span class="attr-label">${label}</span>
@@ -111,7 +109,7 @@ function renderV2(card, base) {
 
 function renderV3(card, base) {
     const photoHTML = card.foto 
-        ? `<img class="card-photo-bg" src="${base}${card.foto}" alt="" />` 
+        ? `<img class="card-photo-bg" src="${base}${card.foto}" alt="" style="transform: translate(${card.pos_x || 0}px, ${card.pos_y || 0}px) scale(${card.zoom || 1});" />` 
         : `<div class="card-photo-placeholder-bg"></div>`;
     const attrRowsHTML = ATTR_KEYS.map(({ key, label }) => `
         <div class="attr-compact">
@@ -139,11 +137,93 @@ function renderV3(card, base) {
         </div>`;
 }
 
+function renderV4(card, base) {
+    const photoHTML = card.foto 
+        ? `<img class="card-photo-bg" src="${base}${card.foto}" alt="" style="transform: translate(${card.pos_x || 0}px, ${card.pos_y || 0}px) scale(${card.zoom || 1});" />` 
+        : `<div class="card-photo-placeholder-bg"></div>`;
+    const attrRowsHTML = ATTR_KEYS.map(({ key, label }) => `
+        <div class="thumb-attr">
+            <span class="attr-val">${card.atributos?.[key] ?? 5}/10</span>
+            <span class="attr-lab">${label}</span>
+        </div>`).join('');
+
+    return `
+        <div class="card v4-thumb" style="${colorVars(card.cor)}">
+            ${photoHTML}
+            <div class="card-gradient-overlay"></div>
+            <div class="card-content">
+                <div class="thumb-header">
+                    <span class="card-title-text">${esc(card.titulo?.toUpperCase() || 'SEM TÍTULO')}</span>
+                    <div class="thumb-tag"><span class="card-tipo-badge">${esc((card.tipo || 'PERSONAGEM').toUpperCase())}</span></div>
+                </div>
+                <div class="card-spacer"></div>
+                <div class="thumb-footer">
+                    <div class="thumb-attributes">${attrRowsHTML}</div>
+                    <div class="thumb-bottom-row">
+                        <span class="card-phrase-text">${esc(card.frase || '"..."')}</span>
+                        <div class="card-pacote">${esc((card.video_origem || 'PACOTE BÁSICO').toUpperCase())}</div>
+                    </div>
+                </div>
+            </div>
+        </div>`;
+}
+
+function renderV5(card, base) {
+    const photoHTML = card.foto 
+        ? `<img class="card-photo-bg" src="${base}${card.foto}" alt="" />` 
+        : `<div class="card-photo-placeholder-bg"></div>`;
+    const attrRowsHTML = ATTR_KEYS.map(({ key, label }) => `
+        <div class="v5-attr-row">
+            <span class="v5-label">${label}</span>
+            <span class="v5-value">${card.atributos?.[key] ?? 5}/10</span>
+        </div>`).join('');
+
+    return `
+        <div class="card v5-full-thumb" style="${colorVars(card.cor)}">
+            ${photoHTML}
+            <div class="v5-overlay"></div>
+            <div class="card-inner">
+                <div class="v5-title-banner"><span class="card-title-text">${esc(card.titulo?.toUpperCase() || 'SEM TÍTULO')}</span></div>
+                <div class="card-spacer"></div>
+                <div class="v5-badge-row"><span class="card-tipo-badge">${esc((card.tipo || 'PERSONAGEM').toUpperCase())}</span></div>
+                <div class="v5-attributes-box">${attrRowsHTML}</div>
+                <div class="v5-phrase-banner"><span class="card-phrase-text">${esc(card.frase || '"..."')}</span></div>
+                <div class="v5-footer-info"><span class="card-pacote">${esc((card.video_origem || 'PACOTE BÁSICO').toUpperCase())}</span></div>
+            </div>
+        </div>`;
+}
+
+function renderV6(card, base) {
+    const photoHTML = card.foto 
+        ? `<img class="card-photo" src="${base}${card.foto}" alt="" style="transform: translate(${card.pos_x || 0}px, ${card.pos_y || 0}px) scale(${card.zoom || 1});" />` 
+        : `<div class="card-photo-placeholder"><span>16:9 ART</span></div>`;
+    const attrRowsHTML = ATTR_KEYS_FULL.map(({ key, label }) => `
+        <div class="attr-row">
+            <span class="attr-label">${label}</span>
+            <span class="attr-value">${card.atributos?.[key] ?? 5}/10</span>
+        </div>`).join('');
+
+    return `
+        <div class="card v6-showcase" style="${colorVars(card.cor)}">
+            <div class="card-inner">
+                <div class="v6-title-banner"><span class="card-title-text">${esc(card.titulo?.toUpperCase() || 'SEM TÍTULO')}</span></div>
+                <div class="v6-photo-container">${photoHTML}</div>
+                <div class="v6-badge-row"><span class="card-tipo-badge">${esc((card.tipo || 'PERSONAGEM').toUpperCase())}</span></div>
+                <div class="v6-attributes">${attrRowsHTML}</div>
+                <div class="v6-phrase-banner"><span class="card-phrase-text">${esc(card.frase || '"..."')}</span></div>
+                <div class="v6-footer"><span class="card-pacote">${esc((card.video_origem || 'PACOTE BÁSICO').toUpperCase())}</span></div>
+            </div>
+        </div>`;
+}
+
 function cardToHtml(card, port) {
     const base = `http://localhost:${port}`;
-    if (card.modelo === 'v2-especial') return renderV2(card, base);
-    if (card.modelo === 'v3-full-art') return renderV3(card, base);
-    return renderV1(card, base); // default
+    if (card.modelo === 'v2-especial')   return renderV2(card, base);
+    if (card.modelo === 'v3-full-art')   return renderV3(card, base);
+    if (card.modelo === 'v4-thumb')      return renderV4(card, base);
+    if (card.modelo === 'v5-full-thumb') return renderV5(card, base);
+    if (card.modelo === 'v6-showcase')   return renderV6(card, base);
+    return renderV1(card, base); // v1
 }
 
 module.exports = { cardToHtml, colorVars };

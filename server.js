@@ -19,14 +19,22 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/assets', express.static(path.join(__dirname, 'assets')));
 
-app.use('/api/cards',  require('./server/routes/cards'));
-app.use('/api/photos', require('./server/routes/photos'));
-app.use('/api',        require('./server/routes/export'));
-app.use('/api',        require('./server/routes/pdf'));
+app.use('/api/cards',    require('./server/routes/cards'));
+app.use('/api/packages', require('./server/routes/packages'));
+app.use('/api/photos',   require('./server/routes/photos'));
+app.use('/api/admin',    require('./server/routes/admin'));
+app.use('/api',         require('./server/routes/export'));
+app.use('/api', require('./server/routes/pdf'));
+app.use('/api', require('./server/routes/bundle'));
 
-app.listen(PORT, () => {
-    console.log('\n🎴  Balela Trunfo');
-    console.log(`    Servidor em  → http://localhost:${PORT}`);
-    console.log(`    Dados em     → ${CARDS_FILE}`);
-    console.log(`    Fotos em     → ${PHOTOS_DIR}\n`);
-});
+// Iniciar apenas se executado diretamente (não via Vercel/teste)
+if (require.main === module) {
+    app.listen(PORT, () => {
+        console.log('\n🎴  Balela Trunfo');
+        console.log(`    Servidor em  → http://localhost:${PORT}`);
+        console.log(`    Dados em     → ${CARDS_FILE}`);
+        console.log(`    Fotos em     → ${PHOTOS_DIR}\n`);
+    });
+}
+
+module.exports = app;
