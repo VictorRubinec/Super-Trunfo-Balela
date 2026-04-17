@@ -47,15 +47,36 @@ router.post('/export/bundle', async (req, res) => {
         }
 
         console.log(`[bundle] Gerando bundle ZIP (Supabase): "${projectName}" | format=${formatKey} | cards=${selectedCards.length}`);
-
-        // Gerar PDFs sequencialmente
-        const pdfFrentes = await generatePDF(selectedCards, formatKey, isCutmarks, bleedVal, PORT);
-        const pdfVersos  = await generateBacksPDF(selectedCards, formatKey, isCutmarks, bleedVal, PORT);
-
-        // Criar ZIP
         const zip = new AdmZip();
-        zip.addFile('frentes.pdf', pdfFrentes);
-        zip.addFile('versos.pdf', pdfVersos);
+
+        // Dividir em chunks de N páginas para evitar timeout do Puppeteer/Vercel
+        // 27 cartas = 3 páginas de 9 cartas cada (tamanho seguro para Vercel)
+        const CARDS_PER_CHUNK = 27; 
+        const chunks = [];
+        for (let i = 0; i < selectedCards.length; i += CARDS_PER_CHUNK) {
+            chunks.push(selectedCards.slice(i, i + CARDS_PER_CHUNK));
+        }
+
+        console.log(`[bundle] Dividindo em ${chunks.length} lotes de processamento...`);
+
+        // Processar cada chunk
+        for (let i = 0; i < chunks.length; i++) {
+            const chunkCards = chunks[i];
+            const startPage = i * 3 + 1;
+            const endPage   = startPage + Math.ceil(chunkCards.length / 9) - 1;
+            const suffix    = `_paginas_${startPage}_${endPage}`;
+
+            console.log(`[bundle] Processando lote ${i+1}/${chunks.length} (${chunkCards.length} cartas)...`);
+
+            // Gerar PDFs do lote em paralelo
+            const [pdfFrentes, pdfVersos] = await Promise.all([
+                generatePDF(chunkCards, formatKey, isCutmarks, bleedVal, PORT),
+                generateBacksPDF(chunkCards, formatKey, isCutmarks, bleedVal, PORT)
+            ]);
+
+            zip.addFile(`frentes${suffix}.pdf`, pdfFrentes);
+            zip.addFile(`versos${suffix}.pdf`, pdfVersos);
+        }
 
         const zipBuffer = zip.toBuffer();
         const filename = `${projectName}.zip`;

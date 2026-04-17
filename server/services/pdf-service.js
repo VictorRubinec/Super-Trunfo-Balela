@@ -6,6 +6,8 @@ const path = require('path');
 const { cardToHtml, colorVars } = require('./card-renderer');
 
 const CSS_DIR = path.join(__dirname, '../../public/css');
+let _cssCache = null;
+let _cssBackCache = null;
 
 const PAGE_FORMATS = {
     'a4':       { width: 210, height: 297, label: 'A4' },
@@ -17,7 +19,7 @@ const PAGE_FORMATS = {
 async function getLaunchOptions() {
     if (isVercel) {
         return {
-            args: chromium.args,
+            args: [...chromium.args, '--disable-gpu', '--disable-dev-shm-usage', '--no-sandbox'],
             defaultViewport: chromium.defaultViewport,
             executablePath: await chromium.executablePath(),
             headless: chromium.headless,
@@ -25,7 +27,7 @@ async function getLaunchOptions() {
     }
     return {
         headless: true,
-        args: ['--no-sandbox', '--disable-setuid-sandbox'],
+        args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage', '--disable-gpu'],
     };
 }
 
@@ -107,25 +109,30 @@ function buildPrintHTML(cards, format, showCutmarks, bleedValue, port) {
 
     const perPage = cols * rows;
 
-    // Centralizar o grid na área útil
-    const gridW = cols * cellW + Math.max(0, cols - 1) * GAP;
-    const gridH = rows * cellH + Math.max(0, rows - 1) * GAP;
-    const padX  = ((fmt.width  - gridW) / 2).toFixed(2);
-    const padY  = ((fmt.height - gridH) / 2).toFixed(2);
-
     // Dividir em páginas
     const pages = [];
     for (let i = 0; i < Math.max(1, cards.length); i += perPage) {
         pages.push(cards.slice(i, i + perPage));
     }
 
-    // CSS da carta lidos do disco
-    const cssV1 = fs.readFileSync(path.join(CSS_DIR, 'models/v1-default.css'), 'utf-8');
-    const cssV2 = fs.readFileSync(path.join(CSS_DIR, 'models/v2-especial.css'), 'utf-8');
-    const cssV3 = fs.readFileSync(path.join(CSS_DIR, 'models/v3-full-art.css'), 'utf-8');
-    const cssV4 = fs.readFileSync(path.join(CSS_DIR, 'models/v4-thumb.css'), 'utf-8');
-    const cssV5 = fs.readFileSync(path.join(CSS_DIR, 'models/v5-full-thumb.css'), 'utf-8');
-    const cssV6 = fs.readFileSync(path.join(CSS_DIR, 'models/v6-showcase.css'), 'utf-8');
+    // Cache de CSS em memória para evitar leituras de disco repetitivas
+    if (!_cssCache) {
+        _cssCache = {
+            v1: fs.readFileSync(path.join(CSS_DIR, 'models/v1-default.css'), 'utf-8'),
+            v2: fs.readFileSync(path.join(CSS_DIR, 'models/v2-especial.css'), 'utf-8'),
+            v3: fs.readFileSync(path.join(CSS_DIR, 'models/v3-full-art.css'), 'utf-8'),
+            v4: fs.readFileSync(path.join(CSS_DIR, 'models/v4-thumb.css'), 'utf-8'),
+            v5: fs.readFileSync(path.join(CSS_DIR, 'models/v5-full-thumb.css'), 'utf-8'),
+            v6: fs.readFileSync(path.join(CSS_DIR, 'models/v6-showcase.css'), 'utf-8'),
+        };
+    }
+    const { v1: cssV1, v2: cssV2, v3: cssV3, v4: cssV4, v5: cssV5, v6: cssV6 } = _cssCache;
+
+    // Centralizar o grid na área útil
+    const gridW = cols * cellW + Math.max(0, cols - 1) * GAP;
+    const gridH = rows * cellH + Math.max(0, rows - 1) * GAP;
+    const padX  = ((fmt.width  - gridW) / 2).toFixed(2);
+    const padY  = ((fmt.height - gridH) / 2).toFixed(2);
 
     const pagesHTML = pages.map((pageCards, pi) => {
         const cells = Array.from({ length: perPage }, (_, i) => {
@@ -219,8 +226,13 @@ async function generatePDF(cards, format, showCutmarks, bleed, port = 3000) {
 
     try {
         const page = await browser.newPage();
-        await page.setContent(html, { waitUntil: 'domcontentloaded', timeout: 30000 });
-        await new Promise(resolve => setTimeout(resolve, 2000));
+        page.setDefaultTimeout(90000);
+        page.setDefaultNavigationTimeout(90000);
+        
+        await page.setJavaScriptEnabled(false);
+        await page.setContent(html, { waitUntil: 'domcontentloaded', timeout: 90000 });
+        
+        await new Promise(resolve => setTimeout(resolve, 1500));
 
         const pdfRaw = await page.pdf({
             width:           `${fmt.width}mm`,
@@ -254,7 +266,10 @@ function buildBacksHTML(cards, format, showCutmarks, bleedValue, port) {
         pages.push(cards.slice(i, i + perPage));
     }
 
-    const cssBack = fs.readFileSync(path.join(CSS_DIR, 'card-back.css'), 'utf-8');
+    if (!_cssBackCache) {
+        _cssBackCache = fs.readFileSync(path.join(CSS_DIR, 'card-back.css'), 'utf-8');
+    }
+    const cssBack = _cssBackCache;
 
     const pagesHTML = pages.map((pageCards, pi) => {
         const cells = Array.from({ length: perPage }, (_, i) => {
@@ -338,8 +353,11 @@ async function generateBacksPDF(cards, format, showCutmarks, bleed, port = 3000)
 
     try {
         const page = await browser.newPage();
-        await page.setContent(html, { waitUntil: 'domcontentloaded' });
-        await new Promise(resolve => setTimeout(resolve, 1500));
+        page.setDefaultTimeout(90000);
+        
+        await page.setJavaScriptEnabled(false);
+        await page.setContent(html, { waitUntil: 'domcontentloaded', timeout: 90000 });
+        await new Promise(resolve => setTimeout(resolve, 1000));
 
         const pdfRaw = await page.pdf({
             width: `${fmt.width}mm`,
