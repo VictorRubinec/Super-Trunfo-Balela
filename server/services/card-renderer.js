@@ -226,13 +226,26 @@ function renderV6(card, base) {
 }
 
 function cardToHtml(card, port) {
-    const base = `http://localhost:${port}`;
-    if (card.modelo === 'v2-especial')   return renderV2(card, base);
-    if (card.modelo === 'v3-full-art')   return renderV3(card, base);
-    if (card.modelo === 'v4-thumb')      return renderV4(card, base);
-    if (card.modelo === 'v5-full-thumb') return renderV5(card, base);
-    if (card.modelo === 'v6-showcase')   return renderV6(card, base);
-    return renderV1(card, base); // v1
+    // Helper para garantir que a URL da foto esteja correta
+    // Se for uma URL completa (Supabase), retorna ela. Se for caminho relativo, prefixa com o host local.
+    const getPhotoUrl = (foto) => {
+        if (!foto) return '';
+        if (foto.startsWith('http')) return foto;
+        return `http://localhost:${port}${foto.startsWith('/') ? '' : '/'}${foto}`;
+    };
+
+    // Criamos uma cópia do card com a foto já resolvida para os renderizadores
+    const processedCard = {
+        ...card,
+        foto: getPhotoUrl(card.foto)
+    };
+
+    if (card.modelo === 'v2-especial')   return renderV2(processedCard, '');
+    if (card.modelo === 'v3-full-art')   return renderV3(processedCard, '');
+    if (card.modelo === 'v4-thumb')      return renderV4(processedCard, '');
+    if (card.modelo === 'v5-full-thumb') return renderV5(processedCard, '');
+    if (card.modelo === 'v6-showcase')   return renderV6(processedCard, '');
+    return renderV1(processedCard, ''); // v1
 }
 
 module.exports = { cardToHtml, colorVars };

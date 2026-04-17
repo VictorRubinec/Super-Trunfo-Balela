@@ -10,7 +10,7 @@
   "dependencies": {
     "@supabase/supabase-js": "^2.103.3",
     "adm-zip": "^0.5.17",
-    "cors": "^2.8.5",
+    "cors": "^2.8.6",
     "csv-parse": "^5.5.2",
     "csv-stringify": "^6.4.4",
     "dotenv": "^17.4.2",

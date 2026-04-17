@@ -1,38 +1,10 @@
 const express = require('express');
 const { supabase } = require('../services/supabase-service');
 const LogService = require('../services/log-service');
-
 const { authenticate, authorize } = require('../middleware/auth');
+const { mapFromDb, mapToDb } = require('../services/data-utils');
 
 const router = express.Router();
-
-// Helper para converter colunas do DB para o formato JSON do Frontend
-function mapFromDb(card) {
-    return {
-        ...card,
-        atributos: {
-            entretenimento: card.attr_ent,
-            vergonha_alheia: card.attr_vgh,
-            competencia:    card.attr_cmp,
-            balela:         card.attr_bal,
-            climao:         card.attr_clm
-        }
-    };
-}
-
-// Helper para converter JSON do Frontend para o formato do DB
-function mapToDb(body) {
-    const card = { ...body };
-    if (body.atributos) {
-        card.attr_ent = body.atributos.entretenimento;
-        card.attr_vgh = body.atributos.vergonha_alheia;
-        card.attr_cmp = body.atributos.competencia;
-        card.attr_bal = body.atributos.balela;
-        card.attr_clm = body.atributos.climao;
-        delete card.atributos;
-    }
-    return card;
-}
 
 router.get('/', async (req, res) => {
     const { data, error } = await supabase
@@ -41,7 +13,7 @@ router.get('/', async (req, res) => {
         .order('criado_em', { ascending: false });
 
     if (error) return res.status(500).json({ error: error.message });
-    res.json(data.map(mapFromDb));
+    res.json((data || []).map(mapFromDb));
 });
 
 router.post('/', authenticate, authorize(['admin', 'member']), async (req, res) => {
@@ -74,9 +46,11 @@ router.post('/', authenticate, authorize(['admin', 'member']), async (req, res) 
 });
 
 router.put('/:id', authenticate, authorize(['admin', 'member']), async (req, res) => {
-    // 1. Buscar dado antigo para o log
+    // 1. Buscar dado antigo para o log (usando o cliente autenticado para garantir permissão)
     const { data: oldData } = await req.supabase.from('cards').select('*').eq('id', req.params.id).single();
     
+    if (!oldData) return res.status(404).json({ error: 'Carta não encontrada ou acesso negado' });
+
     const cardData = mapToDb(req.body);
     delete cardData.id; // Evitar mudar ID
 
@@ -87,7 +61,7 @@ router.put('/:id', authenticate, authorize(['admin', 'member']), async (req, res
         .select();
 
     if (error) return res.status(500).json({ error: error.message });
-    if (!data || data.length === 0) return res.status(404).json({ error: 'Carta não encontrada' });
+    if (!data || data.length === 0) return res.status(404).json({ error: 'Falha ao atualizar carta' });
     
     // Log Auditoria
     await LogService.log({
@@ -105,6 +79,8 @@ router.put('/:id', authenticate, authorize(['admin', 'member']), async (req, res
 router.delete('/:id', authenticate, authorize(['admin', 'member']), async (req, res) => {
     // 1. Buscar dado antigo para o log
     const { data: oldData } = await req.supabase.from('cards').select('*').eq('id', req.params.id).single();
+
+    if (!oldData) return res.status(404).json({ error: 'Carta não encontrada ou acesso negado' });
 
     const { error } = await req.supabase
         .from('cards')

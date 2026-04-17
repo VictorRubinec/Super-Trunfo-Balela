@@ -1,22 +1,30 @@
 const express = require('express');
 const path    = require('path');
 const fs      = require('fs');
+const cors    = require('cors');
 
 const app  = express();
 const PORT = process.env.PORT || 3000;
 
-const DATA_DIR   = path.join(__dirname, 'data');
-const PHOTOS_DIR = path.join(__dirname, 'public', 'assets', 'photos');
-const CARDS_FILE = path.join(DATA_DIR, 'cards.json');
-
-if (!fs.existsSync(DATA_DIR))   fs.mkdirSync(DATA_DIR,   { recursive: true });
-if (!fs.existsSync(PHOTOS_DIR)) fs.mkdirSync(PHOTOS_DIR, { recursive: true });
-if (!fs.existsSync(CARDS_FILE)) fs.writeFileSync(CARDS_FILE, '[]', 'utf-8');
-
+// Configurações básicas configuradas para Vercel / Supabase
+app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
 app.use(express.static(path.join(__dirname, 'public')));
+
+// Rota de diagnóstico para Vercel
+app.get('/api/health', (req, res) => {
+    res.json({
+        status: 'ok',
+        uptime: process.uptime(),
+        env: {
+            hasUrl: !!process.env.SUPABASE_URL,
+            hasKey: !!process.env.SUPABASE_KEY,
+            hasServiceKey: !!process.env.SUPABASE_SERVICE_ROLE_KEY
+        }
+    });
+});
 
 app.use('/api/cards',    require('./server/routes/cards'));
 app.use('/api/packages', require('./server/routes/packages'));
@@ -31,8 +39,7 @@ if (require.main === module) {
     app.listen(PORT, () => {
         console.log('\n🎴  Balela Trunfo');
         console.log(`    Servidor em  → http://localhost:${PORT}`);
-        console.log(`    Dados em     → ${CARDS_FILE}`);
-        console.log(`    Fotos em     → ${PHOTOS_DIR}\n`);
+        console.log(`    Banco de Dados → Supabase Live\n`);
     });
 }
 

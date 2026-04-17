@@ -1,15 +1,25 @@
 const express = require('express');
-const fs      = require('fs');
-const path    = require('path');
 const { generatePDF, generateBacksPDF, PAGE_FORMATS } = require('../services/pdf-service');
+const { supabase } = require('../services/supabase-service');
+const { mapFromDb } = require('../services/data-utils');
 
-const router    = express.Router();
-const DATA_FILE = path.join(__dirname, '../../data/cards.json');
-const PORT      = process.env.PORT || 3000;
+const router = express.Router();
+const PORT   = process.env.PORT || 3000;
 
-function readCards() {
-    try { return JSON.parse(fs.readFileSync(DATA_FILE, 'utf-8')); }
-    catch { return []; }
+/**
+ * Retorna as cartas do Supabase formatadas para o Frontend
+ */
+async function getCardsFromSupabase() {
+    const { data, error } = await supabase
+        .from('cards')
+        .select('*')
+        .order('criado_em', { ascending: false });
+
+    if (error) {
+        console.error('[pdf-db] Erro ao buscar cartas:', error.message);
+        return [];
+    }
+    return (data || []).map(mapFromDb);
 }
 
 router.get('/export/pdf', async (req, res) => {
@@ -21,18 +31,18 @@ router.get('/export/pdf', async (req, res) => {
         return res.status(400).json({ error: `Formato inválido: ${format}` });
     }
 
-    const cards = readCards();
+    const cards = await getCardsFromSupabase();
     if (cards.length === 0) {
-        return res.status(400).json({ error: 'Nenhuma carta para gerar o PDF' });
+        return res.status(400).json({ error: 'Nenhuma carta para gerar o PDF no banco de dados' });
     }
 
-    console.log(`[pdf] Gerando PDF: ${format} | cutmarks=${cutmarks} | ${cards.length} cartas`);
+    console.log(`[pdf] Gerando PDF (Supabase): ${format} | cutmarks=${cutmarks} | ${cards.length} cartas`);
 
     try {
         const pdfBuffer = await generatePDF(cards, format, cutmarks, bleed, PORT);
         const fmt   = PAGE_FORMATS[format];
         const date  = new Date().toISOString().split('T')[0];
-        const marks = cutmarks ? '-com-cores' : '';
+        const marks = cutmarks ? '-com-cortes' : '';
         const filename = `balela-trunfo-${fmt.label.toLowerCase().replace(' ', '-')}-${date}${marks}.pdf`;
 
         res.setHeader('Content-Type', 'application/pdf');
@@ -54,12 +64,12 @@ router.get('/export/pdf-backs', async (req, res) => {
         return res.status(400).json({ error: `Formato inválido: ${format}` });
     }
 
-    const cards = readCards();
+    const cards = await getCardsFromSupabase();
     if (cards.length === 0) {
         return res.status(400).json({ error: 'Nenhuma carta para gerar o verso' });
     }
 
-    console.log(`[pdf-back] Gerando Versos: ${format} | ${cards.length} cartas`);
+    console.log(`[pdf-back] Gerando Versos (Supabase): ${format} | ${cards.length} cartas`);
 
     try {
         const cutmarks  = req.query.cutmarks === 'true';

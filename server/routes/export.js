@@ -1,15 +1,16 @@
 const express = require('express');
 const multer  = require('multer');
 const { exportToCsv, importFromCsv } = require('../services/csv-service');
+const { authenticate } = require('../middleware/auth');
 
 const router = express.Router();
 
 /* Multer em memória (CSV não precisa ser salvo em disco) */
 const csvUpload = multer({ storage: multer.memoryStorage() });
 
-router.get('/export/csv', (req, res) => {
+router.get('/export/csv', async (req, res) => {
     try {
-        const csv      = exportToCsv();
+        const csv      = await exportToCsv();
         const date     = new Date().toISOString().split('T')[0];
         const filename = `balela-trunfo-${date}.csv`;
 
@@ -23,14 +24,14 @@ router.get('/export/csv', (req, res) => {
     }
 });
 
-router.post('/import/csv', csvUpload.single('csv'), (req, res) => {
+router.post('/import/csv', authenticate, csvUpload.single('csv'), async (req, res) => {
     try {
         if (!req.file) return res.status(400).json({ error: 'Nenhum arquivo enviado' });
 
         const csvContent = req.file.buffer.toString('utf-8')
             .replace(/^\uFEFF/, '');    // remove BOM se existir
 
-        const result = importFromCsv(csvContent);
+        const result = await importFromCsv(csvContent, req.supabase);
         res.json(result);
     } catch (err) {
         console.error('[import/csv]', err);

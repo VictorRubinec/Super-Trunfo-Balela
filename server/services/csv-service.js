@@ -1,28 +1,25 @@
 const { stringify } = require('csv-stringify/sync');
 const { parse }     = require('csv-parse/sync');
 const { v4: uuidv4 } = require('uuid');
-const fs   = require('fs');
-const path = require('path');
-
-const DATA_FILE = path.join(__dirname, '../../data/cards.json');
-
-function readCards() {
-    try { return JSON.parse(fs.readFileSync(DATA_FILE, 'utf-8')); }
-    catch { return []; }
-}
-function writeCards(cards) {
-    fs.writeFileSync(DATA_FILE, JSON.stringify(cards, null, 2), 'utf-8');
-}
+const { supabase } = require('./supabase-service');
+const { mapFromDb, mapToDb } = require('./data-utils');
 
 /** Colunas do CSV (ordem de exibição) */
 const COLUMNS = [
     'id', 'titulo', 'tipo',
     'entretenimento', 'vergonha_alheia', 'competencia', 'balela', 'climao',
-    'video_origem', 'frase', 'foto_arquivo', 'modelo', 'criado_em',
+    'video_origem', 'frase', 'foto', 'modelo', 'criado_em',
 ];
 
-function exportToCsv() {
-    const cards = readCards();
+async function exportToCsv() {
+    const { data, error } = await supabase
+        .from('cards')
+        .select('*')
+        .order('criado_em', { ascending: false });
+
+    if (error) throw error;
+
+    const cards = (data || []).map(mapFromDb);
 
     const rows = cards.map(c => ({
         id:              c.id            || '',
@@ -35,7 +32,7 @@ function exportToCsv() {
         climao:          c.atributos?.climao          ?? 5,
         video_origem:    c.video_origem  || '',
         frase:           c.frase         || '',
-        foto_arquivo:    c.foto_arquivo  || '',
+        foto:            c.foto          || '',
         modelo:          c.modelo        || 'v1-default',
         criado_em:       c.criado_em     || '',
     }));
@@ -44,23 +41,22 @@ function exportToCsv() {
 }
 
 /**
- * Importa CSV e mescla com as cartas existentes.
- * - Se o id já existe → atualiza
- * - Se não existe → cria novo
+ * Importa CSV e mescla com as cartas existentes no Supabase.
  * @param {string} csvContent
- * @returns {{ imported: number, updated: number, created: number }}
+ * @param {Object} authSupabase - Cliente Supabase autenticado do usuário (opcional)
+ * @returns {Promise<{ imported: number, upserted: number }>}
  */
-function importFromCsv(csvContent) {
-    const rows    = parse(csvContent, { columns: true, skip_empty_lines: true, trim: true });
-    const cards   = readCards();
-    let created   = 0;
-    let updated   = 0;
+async function importFromCsv(csvContent, authSupabase = null) {
+    const rows = parse(csvContent, { columns: true, skip_empty_lines: true, trim: true });
+    if (rows.length === 0) return { imported: 0, upserted: 0 };
 
-    rows.forEach(row => {
-        const card = {
+    const client = authSupabase || supabase;
+    const cardsToUpsert = rows.map(row => {
+        // Preparar objeto no formato do Frontend para usar o mapToDb
+        const feCard = {
             id:          row.id?.trim() || uuidv4(),
             titulo:      row.titulo     || '',
-            tipo:        row.tipo       || '',
+            tipo:        row.tipo       || 'Personagem',
             atributos: {
                 entretenimento:  parseInt(row.entretenimento)  || 5,
                 vergonha_alheia: parseInt(row.vergonha_alheia) || 5,
@@ -70,24 +66,21 @@ function importFromCsv(csvContent) {
             },
             video_origem:  row.video_origem || '',
             frase:         row.frase        || '',
-            foto:          row.foto_arquivo ? `/assets/photos/${row.foto_arquivo}` : '',
-            foto_arquivo:  row.foto_arquivo  || '',
-            modelo:        row.modelo || 'v1-default',
-            criado_em:     row.criado_em || new Date().toISOString(),
+            foto:          row.foto         || '',
+            modelo:        row.modelo       || 'v1-default',
+            criado_em:     row.criado_em    || new Date().toISOString(),
         };
 
-        const idx = cards.findIndex(c => c.id === card.id);
-        if (idx !== -1) {
-            cards[idx] = card;
-            updated++;
-        } else {
-            cards.push(card);
-            created++;
-        }
+        return mapToDb(feCard);
     });
 
-    writeCards(cards);
-    return { imported: rows.length, created, updated };
+    const { error } = await client
+        .from('cards')
+        .upsert(cardsToUpsert);
+
+    if (error) throw error;
+
+    return { imported: rows.length, upserted: cardsToUpsert.length };
 }
 
 module.exports = { exportToCsv, importFromCsv };

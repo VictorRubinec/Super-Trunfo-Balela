@@ -1,17 +1,11 @@
 const express = require('express');
-const fs      = require('fs');
-const path    = require('path');
 const AdmZip  = require('adm-zip');
 const { generatePDF, generateBacksPDF, PAGE_FORMATS } = require('../services/pdf-service');
+const { supabase } = require('../services/supabase-service');
+const { mapFromDb } = require('../services/data-utils');
 
-const router    = express.Router();
-const DATA_FILE = path.join(__dirname, '../../data/cards.json');
-const PORT      = process.env.PORT || 3000;
-
-function readCards() {
-    try { return JSON.parse(fs.readFileSync(DATA_FILE, 'utf-8')); }
-    catch { return []; }
-}
+const router = express.Router();
+const PORT   = process.env.PORT || 3000;
 
 router.post('/export/bundle', async (req, res) => {
     const { format, cutmarks, bleed, name, ids } = req.body;
@@ -28,19 +22,32 @@ router.post('/export/bundle', async (req, res) => {
         return res.status(400).json({ error: 'Nenhuma carta selecionada' });
     }
 
-    const idList = ids.split(',');
-    const allCards = readCards();
-    
-    // Construir a lista de cartas conforme os IDs enviados (incluindo duplicatas)
-    const selectedCards = idList.map(id => allCards.find(c => c.id === id)).filter(Boolean);
-
-    if (selectedCards.length === 0) {
-        return res.status(400).json({ error: 'Cartas selecionadas não encontradas no servidor' });
+    const idList = ids.split(',').filter(id => id.trim() !== '');
+    if (idList.length === 0) {
+        return res.status(400).json({ error: 'Lista de IDs vazia' });
     }
 
-    console.log(`[bundle] Gerando bundle ZIP: "${projectName}" | format=${formatKey} | cards=${selectedCards.length}`);
-
     try {
+        // Buscar cartas do Supabase pelos IDs
+        const { data, error } = await supabase
+            .from('cards')
+            .select('*')
+            .in('id', idList);
+
+        if (error) throw error;
+
+        // Mapear para o formato do Frontend
+        const fetchedCards = (data || []).map(mapFromDb);
+        
+        // Reconstruir a lista respeitando a ordem e duplicatas enviadas no idList
+        const selectedCards = idList.map(id => fetchedCards.find(c => c.id === id)).filter(Boolean);
+
+        if (selectedCards.length === 0) {
+            return res.status(400).json({ error: 'Cartas selecionadas não encontradas no banco de dados' });
+        }
+
+        console.log(`[bundle] Gerando bundle ZIP (Supabase): "${projectName}" | format=${formatKey} | cards=${selectedCards.length}`);
+
         // Gerar PDFs sequencialmente
         const pdfFrentes = await generatePDF(selectedCards, formatKey, isCutmarks, bleedVal, PORT);
         const pdfVersos  = await generateBacksPDF(selectedCards, formatKey, isCutmarks, bleedVal, PORT);
