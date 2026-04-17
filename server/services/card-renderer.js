@@ -33,12 +33,21 @@ function colorVars(hex) {
     if (!hex || !/^#[0-9a-fA-F]{6}$/.test(hex)) hex = '#7B2FBE';
     const { h, s, l } = hexToHsl(hex);
     
+    // Luminosidade para contraste
+    const r = parseInt(hex.slice(1, 3), 16);
+    const g = parseInt(hex.slice(3, 5), 16);
+    const b = parseInt(hex.slice(5, 7), 16);
+    const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+    const isLight = luminance > 0.75;
+    const contrast = isLight ? '#000000' : '#ffffff';
+    const titleShadow = isLight ? '#000000' : hslToHex(h, Math.min(s + 10, 100), Math.max(l - 34, 3));
+
     const dark    = hslToHex(h, Math.min(s + 5,  100), Math.max(l - 18, 6));
     const darker  = hslToHex(h, Math.min(s + 10, 100), Math.max(l - 34, 3));
     const light   = hslToHex(h, Math.max(s - 8,  0),   Math.min(l + 18, 92));
     const lighter = hslToHex(h, Math.max(s - 18, 0),   Math.min(l + 32, 96));
     
-    return `--c-base:${hex};--c-dark:${dark};--c-darker:${darker};--c-light:${light};--c-lighter:${lighter};`;
+    return `--c-base:${hex};--c-dark:${dark};--c-darker:${darker};--c-light:${light};--c-lighter:${lighter};--c-contrast:${contrast};--c-shadow-title:${titleShadow};`;
 }
 
 function esc(str) {

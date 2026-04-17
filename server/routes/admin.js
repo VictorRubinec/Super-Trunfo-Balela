@@ -80,17 +80,43 @@ router.post('/users', authenticate, authorize(['admin']), async (req, res) => {
  * Listar logs de auditoria (Apenas para Admins)
  */
 router.get('/logs', authenticate, authorize(['admin']), async (req, res) => {
-    const { data, error } = await supabase
+    // Buscamos apenas os logs primeiro para evitar erro de relacionamento no cache do schema
+    const { data: logs, error: logsError } = await supabase
         .from('audit_logs')
-        .select(`
-            *,
-            profiles:user_id (email)
-        `)
+        .select('*')
         .order('created_at', { ascending: false })
         .limit(100);
 
-    if (error) return res.status(500).json({ error: error.message });
-    res.json(data);
+    if (logsError) return res.status(500).json({ error: logsError.message });
+
+    // Enriquecer os logs com o email do perfil se possível
+    try {
+        const userIds = [...new Set(logs.map(l => l.user_id).filter(id => id))];
+        
+        if (userIds.length > 0) {
+            const { data: profiles } = await supabase
+                .from('profiles')
+                .select('id, email')
+                .in('id', userIds);
+            
+            const profileMap = (profiles || []).reduce((acc, p) => {
+                acc[p.id] = p.email;
+                return acc;
+            }, {});
+
+            const enrichedLogs = logs.map(l => ({
+                ...l,
+                profiles: l.user_id ? { email: profileMap[l.user_id] || 'N/A' } : null
+            }));
+            
+            return res.json(enrichedLogs);
+        }
+        
+        res.json(logs);
+    } catch (err) {
+        console.error('[Admin] Erro ao enriquecer logs:', err);
+        res.json(logs); // Retorna os logs básicos se o enriquecimento falhar
+    }
 });
 
 

@@ -6,7 +6,7 @@ const app  = express();
 const PORT = process.env.PORT || 3000;
 
 const DATA_DIR   = path.join(__dirname, 'data');
-const PHOTOS_DIR = path.join(__dirname, 'assets', 'photos');
+const PHOTOS_DIR = path.join(__dirname, 'public', 'assets', 'photos');
 const CARDS_FILE = path.join(DATA_DIR, 'cards.json');
 
 if (!fs.existsSync(DATA_DIR))   fs.mkdirSync(DATA_DIR,   { recursive: true });
@@ -17,7 +17,6 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
 app.use(express.static(path.join(__dirname, 'public')));
-app.use('/assets', express.static(path.join(__dirname, 'assets')));
 
 app.use('/api/cards',    require('./server/routes/cards'));
 app.use('/api/packages', require('./server/routes/packages'));

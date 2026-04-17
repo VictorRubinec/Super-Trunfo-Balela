@@ -332,7 +332,7 @@ const Form = {
         return `
             <div class="card-back">
                 <div class="back-content">
-                    <img src="assets/logo/logo-4.png" class="back-logo-main" alt="Balela Logo" />
+                    <img src="/assets/logo/logo-4.png" class="back-logo-main" alt="Balela Logo" />
                 </div>
             </div>`;
     },
