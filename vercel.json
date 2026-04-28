@@ -16,7 +16,6 @@
       "memory": 1024
     }
   },
-  "cleanUrls": true,
   "routes": [
     {
       "src": "/api/(.*)",
