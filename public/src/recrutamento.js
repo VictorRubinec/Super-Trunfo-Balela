@@ -17,19 +17,19 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // CONFIGURAÇÃO: Substitua esses valores após criar o seu Google Form
-    const GOOGLE_FORM_URL = 'https://docs.google.com/forms/u/0/d/e/XXXXXXXXXXXXXX/formResponse';
+    const GOOGLE_FORM_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSfxr9VJPKWuexwyKdOad1xMimh4EcyGlXH216awpjDGmSfQ0A/formResponse';
     
     // IDs das entradas (entry.XXXX)
     const ENTRIES = {
-        nome: 'entry.11111111',
-        email: 'entry.00000000', // Adicione o ID do campo de e-mail aqui
-        whatsapp: 'entry.22222222',
-        discord: 'entry.33333333',
-        origem: 'entry.44444444',
-        motivo: 'entry.55555555',
-        ajuda: 'entry.66666666',
-        area: 'entry.77777777',
-        disponibilidade: 'entry.88888888'
+        nome: 'entry.399809146',
+        email: 'entry.874330770',
+        whatsapp: 'entry.1721457765',
+        discord: 'entry.16850888',
+        origem: 'entry.1675538044',
+        motivo: 'entry.1337427364',
+        ajuda: 'entry.1246449200',
+        area: 'entry.1917260122',
+        disponibilidade: 'entry.676025900'
     };
 
     if (recruitForm) {
