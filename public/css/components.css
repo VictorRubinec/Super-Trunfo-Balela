@@ -48,8 +48,7 @@ input[type="color"].form-input {
 
 .form-input:focus {
   border-color: var(--primary-light);
-  background: rgba(168, 85, 247, 0.08);
-  box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.15);
+  background: var(--bg-panel-hover);
 }
 
 .form-input.input-error {
@@ -138,27 +137,17 @@ input[type="color"].form-input {
   appearance: none;
   width: 100%;
   height: 4px;
-  background: linear-gradient(to right,
-    var(--primary-light) 0%,
-    var(--primary-light) var(--fill, 44%),
-    rgba(255, 255, 255, 0.12) var(--fill, 44%),
-    rgba(255, 255, 255, 0.12) 100%
-  );
+  background: var(--bg-app-alt);
   border-radius: 2px;
   outline: none;
   cursor: pointer;
   transition: height var(--dur) var(--ease);
 }
 
-.attr-slider:hover { height: 6px; }
-
-.attr-slider::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
+.attr-slider:hover { 
+  height: 6px; 
   background: var(--primary-light);
-  box-shadow: 0 0 8px var(--primary-glow), 0 0 0 2px rgba(168, 85, 247, 0.3);
+  border: 2px solid var(--primary-dark);
   transition: transform var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
   cursor: grab;
 }
@@ -262,16 +251,14 @@ input[type="color"].form-input {
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  background: var(--primary);
   color: #fff;
-  border-color: rgba(168, 85, 247, 0.5);
-  box-shadow: 0 0 20px var(--primary-glow), var(--shadow-sm);
+  border: 2px solid var(--primary-dark);
 }
 
 .btn-primary:hover {
-  background: linear-gradient(135deg, var(--primary-light), var(--primary));
-  box-shadow: 0 0 32px var(--primary-glow), var(--shadow-md);
-  transform: translateY(-1px);
+  background: var(--primary-light);
+  transform: translateY(-2px);
 }
 
 .btn-primary:active { transform: translateY(0); }

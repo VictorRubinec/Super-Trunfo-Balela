@@ -6,8 +6,12 @@ import AuthManager from './components/auth-manager.js';
 import AdminManager from './components/admin-manager.js';
 import ApiClient from './utils/api-client.js';
 import Toast from './utils/toast.js';
+import { renderNavbar } from './components/Navbar.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
+
+    // Inicializar Navbar
+    renderNavbar();
 
     // Inicializar Managers
     AdminManager.init();
