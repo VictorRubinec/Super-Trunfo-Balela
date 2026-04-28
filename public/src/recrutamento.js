@@ -78,20 +78,15 @@ document.addEventListener('DOMContentLoaded', () => {
             googleFormData.append(ENTRIES.disponibilidade, formData.get('disponibilidade'));
 
             try {
-                // Enviar usando fetch com os parâmetros na URL (método GET também funciona no formResponse e é menos bloqueado)
-                // ou manter POST mas simplificar os headers.
                 await fetch(GOOGLE_FORM_URL, {
                     method: 'POST',
                     mode: 'no-cors',
-                    cache: 'no-cache',
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded'
                     },
-                    body: googleFormData.toString()
+                    body: googleFormData
                 });
 
-                // Como usamos no-cors, o fetch não "sabe" se deu erro de servidor, 
-                // então assumimos sucesso se a requisição foi disparada.
                 formPanel.style.display = 'none';
                 successPanel.style.display = 'block';
                 window.scrollTo({ top: 0, behavior: 'smooth' });
