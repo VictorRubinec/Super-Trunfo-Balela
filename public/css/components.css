@@ -33,6 +33,12 @@
   outline: none;
 }
 
+.form-textarea {
+  min-height: 100px;
+  resize: vertical;
+  line-height: 1.6;
+}
+
 input[type="color"].form-input {
   width: 44px;
   height: 40px;

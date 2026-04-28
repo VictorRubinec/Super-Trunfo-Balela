@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Trabalhe Conosco — Balela</title>
+  <meta name="description" content="Faça parte da equipe do Balela" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚀</text></svg>">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  
+  <style>
+    .recruit-container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .recruit-header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+    .recruit-header h1 {
+      font-size: 3rem;
+      font-weight: 900;
+      background: linear-gradient(to bottom, #fff, var(--primary-light));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 10px;
+    }
+    .recruit-header p {
+      color: var(--text-2);
+      font-size: 1.1rem;
+    }
+    .success-message {
+      display: none;
+      text-align: center;
+      padding: 40px;
+    }
+    .success-icon {
+      font-size: 64px;
+      margin-bottom: 20px;
+      display: block;
+    }
+    .success-title {
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--primary-light);
+      margin-bottom: 10px;
+    }
+    .success-text {
+      color: var(--text-2);
+      line-height: 1.6;
+    }
+  </style>
+</head>
+<body>
+
+  <header class="app-header">
+    <div class="header-inner">
+      <a href="/" class="header-brand">
+        <span class="header-icon">🎴</span>
+        <div class="header-text">
+          <h1 class="header-title">Balela Trunfo</h1>
+          <span class="header-sub">Recrutamento</span>
+        </div>
+      </a>
+      <div class="header-actions">
+        <a href="/" class="btn-login btn-sm">Voltar ao Início</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="app-main">
+    <div class="recruit-container">
+      <div class="recruit-header">
+        <h1>Faça Parte do Time</h1>
+        <p>Junte-se à equipe do Balela e ajude o projeto a crescer!</p>
+      </div>
+
+      <div class="glass-panel" id="form-panel">
+        <form id="recruit-form" class="card-form">
+          <!-- O action será preenchido dinamicamente via JS ou manualmente depois -->
+          <div class="form-group">
+            <label class="form-label" for="field-nome">Nome / Apelido</label>
+            <input type="text" id="field-nome" name="nome" class="form-input" placeholder="Como quer ser chamado?" required />
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <div class="form-group">
+              <label class="form-label" for="field-whatsapp">WhatsApp</label>
+              <input type="text" id="field-whatsapp" name="whatsapp" class="form-input" placeholder="(00) 00000-0000" required />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="field-discord">Nick (Opcional)</label>
+              <input type="text" id="field-discord" name="discord" class="form-input" placeholder="Seu nick no Discord" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="field-origem">Como conheceu o projeto?</label>
+            <select id="field-origem" name="origem" class="form-input form-select" required>
+              <option value="" disabled selected>Selecione uma opção...</option>
+              <option value="Gravação do Circo">Estava na gravação do circo</option>
+              <option value="Gravação da Banda de Rock">Estava na gravação da banda de rock</option>
+              <option value="Pelo Grupo">Pelo grupo</option>
+              <option value="Vídeo de Bastidores">Pelo vídeo de bastidores</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="field-motivo">Por que quer entrar no projeto?</label>
+            <textarea id="field-motivo" name="motivo" class="form-input form-textarea" placeholder="Conte um pouco sobre seu interesse..." required></textarea>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="field-ajuda">Como pode ajudar?</label>
+            <textarea id="field-ajuda" name="ajuda" class="form-input form-textarea" placeholder="O que você sabe fazer de melhor?" required></textarea>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="field-area">Área de interesse</label>
+            <input type="text" id="field-area" name="area" class="form-input" placeholder="Ex: Design, Edição, Social Media, Programação..." required />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="field-disponibilidade">Disponibilidade</label>
+            <input type="text" id="field-disponibilidade" name="disponibilidade" class="form-input" placeholder="Ex: Noites e fins de semana" required />
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-full" id="btn-submit">
+            <span>🚀</span> Enviar Minha Candidatura
+          </button>
+        </form>
+      </div>
+
+      <div class="glass-panel success-message" id="success-panel">
+        <span class="success-icon">✨</span>
+        <h2 class="success-title">Recebemos seu formulário!</h2>
+        <p class="success-text">
+          Obrigado pelo interesse em ajudar o Balela. <br>
+          Nossa equipe vai analisar sua resposta e entraremos em contato em breve via WhatsApp ou Discord.
+        </p>
+        <div style="margin-top: 30px;">
+          <a href="/" class="btn btn-secondary">Voltar para a Home</a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="app-footer">
+    <span>Balela Trunfo © 2026 · Victor Zanin Rubinec</span>
+  </footer>
+
+  <script src="/src/recrutamento.js"></script>
+</body>
+</html>

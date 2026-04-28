@@ -16,10 +16,15 @@
       "memory": 1024
     }
   },
+  "cleanUrls": true,
   "routes": [
     {
       "src": "/api/(.*)",
       "dest": "server.js"
+    },
+    {
+      "src": "/recrutamento",
+      "dest": "/public/recrutamento.html"
     },
     {
       "src": "/(.*)",
