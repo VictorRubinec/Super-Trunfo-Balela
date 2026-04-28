@@ -22,6 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // IDs das entradas (entry.XXXX)
     const ENTRIES = {
         nome: 'entry.11111111',
+        email: 'entry.00000000', // Adicione o ID do campo de e-mail aqui
         whatsapp: 'entry.22222222',
         discord: 'entry.33333333',
         origem: 'entry.44444444',
@@ -67,6 +68,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Criar a URL com os parâmetros para o Google Form
             const googleFormData = new URLSearchParams();
             googleFormData.append(ENTRIES.nome, formData.get('nome'));
+            googleFormData.append(ENTRIES.email, formData.get('email'));
             googleFormData.append(ENTRIES.whatsapp, formData.get('whatsapp'));
             googleFormData.append(ENTRIES.discord, formData.get('discord') || 'Não informado');
             googleFormData.append(ENTRIES.origem, formData.get('origem'));
