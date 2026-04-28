@@ -1,5 +1,5 @@
 const express = require('express');
-const { supabase } = require('../services/supabase-service');
+const { supabase, adminSupabase } = require('../services/supabase-service');
 const LogService = require('../services/log-service');
 const { authenticate, authorize } = require('../middleware/auth');
 const { mapFromDb, mapToDb } = require('../services/data-utils');
@@ -7,7 +7,7 @@ const { mapFromDb, mapToDb } = require('../services/data-utils');
 const router = express.Router();
 
 router.get('/', async (req, res) => {
-    const { data, error } = await supabase
+    const { data, error } = await adminSupabase
         .from('cards')
         .select('*')
         .order('criado_em', { ascending: false });

@@ -1,6 +1,7 @@
 const express = require('express');
 const { authenticate, authorize } = require('../middleware/auth');
 const { supabase, adminSupabase } = require('../services/supabase-service');
+const EmailService = require('../services/emailService');
 
 const router = express.Router();
 
@@ -25,23 +26,37 @@ router.post('/invite', authenticate, authorize(['admin']), async (req, res) => {
 
     if (!email) return res.status(400).json({ error: 'E-mail é obrigatório' });
 
-    // 1. Convidar via Supabase Auth
-    const { data: { user }, error: inviteError } = await adminSupabase.auth.admin.inviteUserByEmail(email, {
-        data: { initial_role: role || 'member' },
-        redirectTo: `${req.protocol}://${req.get('host')}/#type=invite`
-    });
+    try {
+        // 1. Gerar link de convite via Supabase
+        const { data: { properties }, error: linkError } = await adminSupabase.auth.admin.generateLink({
+            type: 'invite',
+            email: email,
+            options: {
+                data: { initial_role: role || 'member' },
+                redirectTo: `${req.protocol}://${req.get('host')}/#type=invite`
+            }
+        });
 
-    if (inviteError) return res.status(500).json({ error: inviteError.message });
+        if (linkError) throw linkError;
 
-    // 2. Garantir que o perfil seja criado/atualizado com a role correta
-    // Geralmente o trigger do Supabase cuida disso, mas vamos reforçar
-    await adminSupabase.from('profiles').upsert({
-        id: user.id,
-        email: email,
-        role: role || 'member'
-    });
+        // 2. Enviar via Resend
+        await EmailService.sendInvite(email, properties.action_link);
 
-    res.json({ ok: true, message: `Convite enviado para ${email}` });
+        // 3. Garantir que o perfil exista (opcional, pois o link criará se clicar, mas melhor garantir)
+        // Nota: O adminSupabase.auth.admin.generateLink já garante que o usuário existe no Auth
+        const { data: { user } } = await adminSupabase.auth.admin.getUserByEmail(email);
+        
+        await adminSupabase.from('profiles').upsert({
+            id: user.id,
+            email: email,
+            role: role || 'member'
+        });
+
+        res.json({ ok: true, message: `Convite enviado via Resend para ${email}` });
+    } catch (err) {
+        console.error('[Admin] Erro ao convidar:', err);
+        res.status(500).json({ error: err.message });
+    }
 });
 
 /**

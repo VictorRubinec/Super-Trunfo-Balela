@@ -49,6 +49,7 @@ const Form = {
             zoomSlider:       document.getElementById('slider-zoom'),
             zoomDisplay:      document.getElementById('disp-zoom'),
             resetTransformBtn: document.getElementById('btn-reset-transform'),
+            downloadPngBtn:   document.getElementById('btn-download-png'),
             previewWrapper:   document.querySelector('.preview-wrapper'),
         };
 
@@ -109,6 +110,10 @@ const Form = {
 
         this.el.resetTransformBtn?.addEventListener('click', () => {
             this.resetTransform();
+        });
+        
+        this.el.downloadPngBtn?.addEventListener('click', () => {
+            this._downloadPng();
         });
 
         // Eventos de Drag no Preview
@@ -399,6 +404,47 @@ const Form = {
             detail: { ...cardData, fotoFile },
         });
         document.dispatchEvent(event);
+    },
+
+    async _downloadPng() {
+        const cardEl = document.querySelector('.preview-wrapper .card');
+        if (!cardEl) {
+            Toast.error('Nenhuma carta encontrada no preview!');
+            return;
+        }
+
+        const titulo = this.el.titulo?.value.trim() || 'carta-balela';
+        const originalBtnText = this.el.downloadPngBtn.innerHTML;
+        this.el.downloadPngBtn.disabled = true;
+        this.el.downloadPngBtn.innerHTML = '<i data-lucide="loader-2"></i> <span>GERANDO...</span>';
+        if (window.lucide) window.lucide.createIcons();
+
+        try {
+            // Pequeno delay para garantir renderização
+            await new Promise(r => setTimeout(r, 100));
+
+            const canvas = await html2canvas(cardEl, {
+                backgroundColor: null, // Transparência
+                scale: 3,             // Alta qualidade
+                useCORS: true,
+                logging: false,
+                allowTaint: true
+            });
+
+            const link = document.createElement('a');
+            link.download = `${titulo.toLowerCase().replace(/\s+/g, '-')}.png`;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+            
+            Toast.success('PNG gerado com sucesso! ✨');
+        } catch (err) {
+            console.error('[Form] Erro ao gerar PNG:', err);
+            Toast.error('Erro ao gerar imagem. Tente novamente.');
+        } finally {
+            this.el.downloadPngBtn.disabled = false;
+            this.el.downloadPngBtn.innerHTML = originalBtnText;
+            if (window.lucide) window.lucide.createIcons();
+        }
     },
 };
 

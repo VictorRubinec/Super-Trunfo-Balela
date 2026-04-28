@@ -18,6 +18,14 @@
     {
       "source": "/gerador",
       "destination": "/gerador.html"
+    },
+    {
+      "source": "/galeria",
+      "destination": "/galeria.html"
+    },
+    {
+      "source": "/sobre",
+      "destination": "/sobre.html"
     }
   ]
 }

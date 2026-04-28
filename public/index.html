@@ -4,7 +4,21 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Season Pass Balela — Oficial</title>
-  <meta name="description" content="O projeto de fidelidade feito de fã para fã para a comunidade do Balela." />
+  <meta name="description" content="O projeto de fidelidade feito de fã para fã para a comunidade do Balela. Colecione cartas, ganhe recompensas e faça parte da história." />
+  
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://balela-trunfo.vercel.app/" />
+  <meta property="og:title" content="Season Pass Balela — Oficial" />
+  <meta property="og:description" content="Colecione cartas, ganhe recompensas e faça parte da história do canal Balela." />
+  <meta property="og:image" content="/assets/logo/logo-4.png" />
+
+  <!-- Twitter -->
+  <meta property="twitter:card" content="summary_large_image" />
+  <meta property="twitter:title" content="Season Pass Balela — Oficial" />
+  <meta property="twitter:description" content="O projeto de fidelidade feito de fã para fã para a comunidade do Balela." />
+  <meta property="twitter:image" content="/assets/logo/logo-4.png" />
+
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎴</text></svg>">
 
   <!-- Google Fonts -->
@@ -22,7 +36,7 @@
   <style>
     .hero-section {
       text-align: center;
-      padding: 80px 20px;
+      padding: 60px 20px;
       background: var(--bg-app-alt);
       border-bottom: 2px solid var(--border);
     }
@@ -56,7 +70,7 @@
       display: grid;
       grid-template-columns: repeat(5, 1fr);
       gap: 20px;
-      max-width: 1000px;
+      max-width: 1100px;
       margin: 0 auto;
     }
     .timeline-item {
@@ -104,7 +118,7 @@
     }
 
     .inspiration-section {
-      padding: 80px 20px;
+      padding: 60px 20px;
       background: var(--bg-app-alt);
       border-top: 2px solid var(--border);
     }
@@ -170,10 +184,40 @@
       letter-spacing: 0.05em;
     }
 
-    @media (max-width: 768px) {
-      .hero-title { font-size: 2.5rem; }
-      .timeline { grid-template-columns: repeat(2, 1fr); }
-      .inspiration-grid { grid-template-columns: 1fr; }
+    @media (max-width: 900px) {
+      .hero-section .app-main { 
+        grid-template-columns: 1fr !important; 
+        text-align: center !important;
+      }
+      .hero-subtitle { margin: 0 auto 40px !important; }
+      .hero-actions { display: flex; justify-content: center; }
+      .hero-visual { display: none; }
+      
+      .about-project-section .app-main {
+        grid-template-columns: 1fr !important;
+        gap: 30px !important;
+        text-align: center !important;
+      }
+      .about-project-section .section-title { text-align: center !important; }
+      .about-project-section .about-content { order: 1; }
+      .about-project-section .about-image { order: 2; }
+      .stat-box { justify-content: center; flex: 1; }
+
+      .inspiration-panels { flex-direction: column; min-height: auto !important; }
+      .insp-panel { border-right: none !important; border-bottom: 2px solid var(--border); }
+      .insp-panel-content { padding: 40px 20px !important; }
+      
+      .hero-title { font-size: 2.8rem; }
+      .timeline { 
+        grid-template-columns: repeat(2, 1fr); 
+        gap: 12px;
+        padding: 0 10px;
+      }
+      .timeline-item {
+        padding: 15px 10px;
+      }
+      .prize-number { font-size: 20px; }
+      .prize-name { font-size: 11px; }
     }
   </style>
 </head>
@@ -185,25 +229,30 @@
 
   <main>
     <section class="hero-section">
-      <div class="app-main">
-        <h1 class="hero-title">Season Pass <br> <span style="color: var(--primary-light);">Balela</span></h1>
-        <p class="hero-subtitle">
-          Um projeto de fidelidade criado de fã para fã. Colecione prêmios exclusivos 
-          e cartas de Super Trunfo a cada gravação que você comparecer.
-        </p>
-        <div class="hero-actions">
-          <a href="/gerador" class="btn btn-primary">
-            <i data-lucide="layers"></i>
-            <span>Ver Gerador de Cartas</span>
-          </a>
+      <div class="app-main" style="display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 40px; align-items: center; text-align: left;">
+        <div class="hero-content">
+          <h1 class="hero-title">Season Pass <br> <span style="color: var(--primary-light);">Balela</span></h1>
+          <p class="hero-subtitle" style="margin-left: 0;">
+            Um projeto de fidelidade criado de fã para fã. Colecione prêmios exclusivos 
+            e cartas de Super Trunfo a cada gravação que você comparecer.
+          </p>
+          <div class="hero-actions">
+            <a href="/gerador" class="btn btn-primary">
+              <i data-lucide="layers"></i>
+              <span>Ver Gerador de Cartas</span>
+            </a>
+          </div>
+        </div>
+        <div class="hero-visual hide-mobile">
+          <img src="/assets/placeholders/premios.png" alt="Balela Trunfo" style="width: 100%; border-radius: var(--r-lg); border: 2px solid var(--border); transform: rotate(2deg); box-shadow: var(--shadow-flat);">
         </div>
       </div>
     </section>
 
-    <section class="timeline-container">
+    <section class="timeline-container" style="padding: 40px 0;">
       <div class="app-main">
-        <h2 class="section-title">Prêmios do Season Pass</h2>
-        <div class="timeline" style="grid-template-columns: repeat(2, 1fr); gap: 16px;">
+        <h2 class="section-title">Recompensas do Season Pass</h2>
+        <div class="timeline">
           <div class="timeline-item">
             <div class="prize-number">01</div>
             <div class="prize-name">Adesivo da Logo</div>
@@ -245,33 +294,111 @@
             <div class="prize-name">Carta Aleatória + Bottom Especial</div>
           </div>
         </div>
-        <p style="text-align: center; color: var(--text-3); margin-top: 32px; font-size: 13px;">
-          * Colecione selos a cada gravação para resgatar seus prêmios com os distribuidores oficiais.
+        <p style="text-align: center; color: var(--text-3); margin-top: 40px; font-size: 13px;">
+          * Ganhe um selo a cada gravação que você comparecer. Prêmios exclusivos para membros!
         </p>
       </div>
     </section>
 
-    <section class="inspiration-section">
+    <section class="about-project-section" style="padding: 60px 20px; background: var(--bg-app);">
+      <div class="app-main" style="display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center;">
+        <div class="about-content">
+          <h2 class="section-title" style="text-align: left;">Sobre o Projeto</h2>
+          <div style="line-height: 1.8; color: var(--text-2);">
+            <p>
+              O <strong>Season Pass Balela</strong> nasceu de um desejo simples: retribuir à comunidade que torna o Balela extraordinário. 
+              O que começou como uma conversa informal sobre "cartões fidelidade" se transformou em um ecossistema completo de colecionáveis.
+            </p>
+            <p style="margin-top: 20px;">
+              Cada carta de Super Trunfo é desenhada para capturar momentos icônicos, piadas internas e a essência dos nossos criadores favoritos. 
+              Este projeto não é apenas sobre ganhar prêmios, é sobre construir uma memória física das gravações e da nossa jornada juntos.
+            </p>
+          </div>
+          <div style="margin-top: 32px; display: flex; gap: 20px;">
+            <div class="stat-box" style="background: var(--bg-panel); padding: 15px 25px; border-radius: var(--r-md); border: 1px solid var(--border);">
+                <div style="font-size: 24px; font-weight: 900; color: var(--primary-light);">10</div>
+                <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-3);">Prêmios</div>
+            </div>
+            <div class="stat-box" style="background: var(--bg-panel); padding: 15px 25px; border-radius: var(--r-md); border: 1px solid var(--border);">
+                <div style="font-size: 24px; font-weight: 900; color: var(--primary-light);">∞</div>
+                <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-3);">Memórias</div>
+            </div>
+          </div>
+        </div>
+        <div class="about-image">
+          <img src="/assets/placeholders/premios.png" alt="Prêmios do Season Pass" style="border-radius: var(--r-lg); border: 2px solid var(--border); box-shadow: var(--shadow-flat);">
+        </div>
+      </div>
+    </section>
+
+    <section class="channel-section" style="padding: 60px 20px; border-top: 2px solid var(--border); background: var(--bg-app-alt);">
       <div class="app-main">
-        <h2 class="section-title">Nossa Inspiração</h2>
-        <div class="inspiration-grid">
-          <div class="inspiration-card">
-            <div class="inspiration-photo"><i data-lucide="user"></i></div>
-            <h3 class="inspiration-name">Thiago Elias</h3>
-            <span class="inspiration-tag">Calango</span>
-          </div>
-          <div class="inspiration-card">
-            <div class="inspiration-photo"><i data-lucide="user"></i></div>
-            <h3 class="inspiration-name">Zero Badass</h3>
-            <span class="inspiration-tag">O Músico</span>
-          </div>
-          <div class="inspiration-card">
-            <div class="inspiration-photo"><i data-lucide="user"></i></div>
-            <h3 class="inspiration-name">Caio Romano</h3>
-            <span class="inspiration-tag">O Criador</span>
+        <h2 class="section-title">O Canal Balela</h2>
+        <div class="glass-panel" style="max-width: 900px; margin: 0 auto; line-height: 1.8; color: var(--text-2);">
+          <p>
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. 
+            Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. 
+            Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+          </p>
+          <p style="margin-top: 20px;">
+            Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. 
+            Curabitur pretium tincidunt lacus: nulla gravida orci a odio. Nullam varius, turpis et commodo pharetra, 
+            est eros bibendum elit, nec luctus magna felis sollicitudin mauris.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="inspiration-section" style="padding: 0; background: var(--bg-app-alt); border-top: 2px solid var(--border);">
+      <div style="text-align: center; padding: 60px 20px 40px;">
+        <h2 class="section-title" style="margin-bottom: 0;">Nossa Inspiração</h2>
+      </div>
+      
+      <div class="inspiration-panels" style="display: flex; width: 100%; min-height: 400px; border-top: 2px solid var(--border);">
+        <!-- Calango -->
+        <div class="insp-panel" onclick="toggleInsp(this)" style="flex: 1; border-right: 2px solid var(--border); position: relative; cursor: pointer; transition: flex 0.5s ease, background 0.3s;">
+          <div class="insp-panel-bg" style="position: absolute; inset: 0; background: var(--bg-panel); opacity: 0.5;"></div>
+          <div class="insp-panel-content" style="position: relative; z-index: 2; padding: 40px; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;">
+            <div class="insp-icon" style="width: 80px; height: 80px; background: var(--primary); border-radius: var(--r-md); display: flex; align-items: center; justify-content: center; margin-bottom: 20px; border: 2px solid var(--primary-dark);">
+              <i data-lucide="user" style="color: #fff;"></i>
+            </div>
+            <h3 class="inspiration-name" style="font-size: 2rem; margin-bottom: 10px;">Calango</h3>
+            <div class="insp-desc" style="max-height: 0; overflow: hidden; transition: max-height 0.5s ease; color: var(--text-2); line-height: 1.6;">
+              <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin ac libero ante. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas.</p>
+            </div>
           </div>
         </div>
 
+        <!-- Zero -->
+        <div class="insp-panel" onclick="toggleInsp(this)" style="flex: 1; border-right: 2px solid var(--border); position: relative; cursor: pointer; transition: flex 0.5s ease, background 0.3s;">
+          <div class="insp-panel-bg" style="position: absolute; inset: 0; background: var(--bg-panel); opacity: 0.5;"></div>
+          <div class="insp-panel-content" style="position: relative; z-index: 2; padding: 40px; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;">
+            <div class="insp-icon" style="width: 80px; height: 80px; background: var(--primary); border-radius: var(--r-md); display: flex; align-items: center; justify-content: center; margin-bottom: 20px; border: 2px solid var(--primary-dark);">
+              <i data-lucide="music" style="color: #fff;"></i>
+            </div>
+            <h3 class="inspiration-name" style="font-size: 2rem; margin-bottom: 10px;">Zero</h3>
+            <div class="insp-desc" style="max-height: 0; overflow: hidden; transition: max-height 0.5s ease; color: var(--text-2); line-height: 1.6;">
+              <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin ac libero ante. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Caio Romano -->
+        <div class="insp-panel" onclick="toggleInsp(this)" style="flex: 1; position: relative; cursor: pointer; transition: flex 0.5s ease, background 0.3s;">
+          <div class="insp-panel-bg" style="position: absolute; inset: 0; background: var(--bg-panel); opacity: 0.5;"></div>
+          <div class="insp-panel-content" style="position: relative; z-index: 2; padding: 40px; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;">
+            <div class="insp-icon" style="width: 80px; height: 80px; background: var(--primary); border-radius: var(--r-md); display: flex; align-items: center; justify-content: center; margin-bottom: 20px; border: 2px solid var(--primary-dark);">
+              <i data-lucide="layout" style="color: #fff;"></i>
+            </div>
+            <h3 class="inspiration-name" style="font-size: 2rem; margin-bottom: 10px;">Caio Romano</h3>
+            <div class="insp-desc" style="max-height: 0; overflow: hidden; transition: max-height 0.5s ease; color: var(--text-2); line-height: 1.6;">
+              <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin ac libero ante. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="app-main">
         <div class="quote-container">
           <p class="quote-text">
             "Sempre admirei a resiliência do Calango, do Zero e do Caio em tirar ideias do papel e dar vida ao novo. 
@@ -287,12 +414,31 @@
   </main>
 
   <footer class="app-footer">
-    <span>Balela Trunfo © 2026 · Victor Zanin Rubinec</span>
+    <div class="footer-inner">
+      <span>Season Pass Balela © 2026 · Victor Zanin Rubinec</span>
+    </div>
   </footer>
 
   <!-- Scripts -->
   <script type="module">
     import { renderNavbar } from './src/components/Navbar.js';
+    window.toggleInsp = function(el) {
+      const allPanels = document.querySelectorAll('.insp-panel');
+      const isExpanded = el.style.flex === '2';
+      
+      allPanels.forEach(p => {
+        p.style.flex = '1';
+        p.querySelector('.insp-desc').style.maxHeight = '0';
+        p.style.background = 'transparent';
+      });
+
+      if (!isExpanded) {
+        el.style.flex = '2';
+        el.querySelector('.insp-desc').style.maxHeight = '200px';
+        el.style.background = 'var(--bg-panel-hover)';
+      }
+    };
+
     document.addEventListener('DOMContentLoaded', () => {
       renderNavbar();
       lucide.createIcons();

@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Galeria de Cartas — Season Pass Balela</title>
+  
+  <!-- SEO -->
+  <meta name="description" content="Explore todas as cartas criadas pela comunidade do Balela." />
+  <meta property="og:title" content="Galeria de Cartas — Season Pass Balela" />
+  <meta property="og:description" content="Explore todas as cartas criadas pela comunidade do Balela." />
+  <meta property="og:image" content="/assets/logo/logo-4.png" />
+
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎴</text></svg>">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+
+  <!-- CSS Principais -->
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  
+  <!-- CSS de Modelos de Cartas -->
+  <link rel="stylesheet" href="/css/models/v1-default.css" />
+  <link rel="stylesheet" href="/css/models/v2-especial.css" />
+  <link rel="stylesheet" href="/css/models/v3-full-art.css" />
+  <link rel="stylesheet" href="/css/models/v4-thumb.css" />
+  <link rel="stylesheet" href="/css/models/v5-full-thumb.css" />
+  <link rel="stylesheet" href="/css/models/v6-showcase.css" />
+  <link rel="stylesheet" href="/css/card-back.css" />
+  
+  <!-- Dependências Externas -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    .page-header {
+      padding: 60px 20px 40px;
+      text-align: center;
+      background: var(--bg-app-alt);
+      border-bottom: 2px solid var(--border);
+    }
+    .gallery-layout {
+      max-width: 1200px;
+      margin: 40px auto 80px;
+      padding: 0 20px;
+    }
+    .gallery-empty {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 100px 20px;
+      background: var(--bg-panel);
+      border: 2px dashed var(--border);
+      border-radius: var(--r-xl);
+      text-align: center;
+      gap: 16px;
+    }
+  </style>
+</head>
+<body>
+
+  <header class="app-header" id="main-header">
+    <!-- Renderizado pelo Navbar.js -->
+  </header>
+
+  <main>
+    <section class="page-header">
+      <h1 class="hero-title" style="font-size: 3rem;">Galeria Comunitária</h1>
+      <p class="hero-subtitle" style="max-width: 600px; margin: 0 auto;">Todas as cartas Super Trunfo criadas pela comunidade em um só lugar.</p>
+    </section>
+
+    <div class="gallery-layout">
+      <!-- Cabeçalho da Galeria -->
+      <div class="gallery-header" style="margin-bottom: 30px;">
+        <div class="gallery-header-left">
+          <h2 class="gallery-title">Cartas Publicadas</h2>
+          <span class="gallery-count" id="gallery-count">...</span>
+        </div>
+        
+        <div class="gallery-controls">
+          <label class="toggle-label">
+            <span class="toggle-text">Agrupar</span>
+            <input type="checkbox" id="toggle-group-package" class="toggle-input" />
+            <span class="toggle-switch"></span>
+          </label>
+
+          <div class="view-toggles">
+            <button class="view-btn active" id="btn-grid-view"><i data-lucide="layout-grid"></i></button>
+            <button class="view-btn" id="btn-list-view"><i data-lucide="list"></i></button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Área de Cartas -->
+      <div class="gallery-grid" id="gallery-grid"></div>
+
+      <!-- Estado Vazio -->
+      <div class="gallery-empty" id="gallery-empty">
+        <div style="font-size: 48px; opacity: 0.5;">🎴</div>
+        <div>
+          <p style="font-size: 18px; font-weight: 700; color: var(--text-1);">Nenhuma carta encontrada</p>
+          <p style="color: var(--text-3);">Ainda não há cartas colecionadas nesta temporada.</p>
+        </div>
+        <a href="/gerador" class="btn btn-primary" style="margin-top: 10px;">Criar Primeira Carta</a>
+      </div>
+    </div>
+  </main>
+
+  <footer class="app-footer">
+    <div class="footer-inner">
+      <span>Season Pass Balela © 2026 · Victor Zanin Rubinec</span>
+    </div>
+  </footer>
+
+  <!-- Modais Compartilhados -->
+  <div class="modal" id="login-modal">
+    <div class="modal-content glass-panel" style="max-width: 400px;">
+      <button class="btn-close-modal" id="btn-close-login">×</button>
+      <div style="text-align: center; margin-bottom: 24px;">
+        <div style="font-size: 40px; margin-bottom: 10px;">🛡️</div>
+        <h2 class="panel-title">Acesso Restrito</h2>
+      </div>
+      <form id="login-form" class="card-form">
+        <div class="form-group">
+          <label class="form-label">E-mail</label>
+          <input type="email" id="login-email" class="form-input" required />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Senha</label>
+          <input type="password" id="login-password" class="form-input" required />
+        </div>
+        <div id="login-error" class="error-text hidden" style="color: #f87171; font-size: 12px; font-weight: 600;"></div>
+        <button type="submit" class="btn btn-primary btn-full">Entrar</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal" id="confirm-modal">
+    <div class="modal-content glass-panel" style="max-width: 350px; text-align: center;">
+      <h2 class="panel-title" id="confirm-title">Confirmar</h2>
+      <p id="confirm-message" style="margin-bottom: 20px; color: var(--text-3);"></p>
+      <div style="display: flex; gap: 10px;">
+        <button class="btn btn-secondary" id="btn-confirm-cancel" style="flex: 1;">Voltar</button>
+        <button class="btn btn-danger" id="btn-confirm-ok" style="flex: 1;">Confirmar</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- Scripts -->
+  <script type="module">
+    import { renderNavbar } from './src/components/Navbar.js';
+    import AuthManager from './src/components/auth-manager.js';
+    import CardList from './src/components/card-list.js';
+    import PackageManager from './src/components/package-manager.js';
+
+    async function start() {
+      try {
+        renderNavbar();
+        await AuthManager.init();
+        await PackageManager.init();
+        await CardList.init();
+        
+        // Ativar ícones após renderizar tudo
+        lucide.createIcons();
+      } catch (err) {
+        console.error('[Galeria] Erro fatal:', err);
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', start);
+  </script>
+</body>
+</html>

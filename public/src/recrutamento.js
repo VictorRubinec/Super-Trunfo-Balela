@@ -64,28 +64,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Coletar dados do formulário
             const formData = new FormData(recruitForm);
-            
-            // Criar a URL com os parâmetros para o Google Form
-            const googleFormData = new URLSearchParams();
-            googleFormData.append(ENTRIES.nome, formData.get('nome'));
-            googleFormData.append(ENTRIES.email, formData.get('email'));
-            googleFormData.append(ENTRIES.whatsapp, formData.get('whatsapp'));
-            googleFormData.append(ENTRIES.discord, formData.get('discord') || 'Não informado');
-            googleFormData.append(ENTRIES.origem, formData.get('origem'));
-            googleFormData.append(ENTRIES.motivo, formData.get('motivo'));
-            googleFormData.append(ENTRIES.ajuda, formData.get('ajuda'));
-            googleFormData.append(ENTRIES.area, formData.get('area'));
-            googleFormData.append(ENTRIES.disponibilidade, formData.get('disponibilidade'));
+            const data = Object.fromEntries(formData.entries());
 
             try {
-                await fetch(GOOGLE_FORM_URL, {
+                const response = await fetch('/api/recrutamento', {
                     method: 'POST',
-                    mode: 'no-cors',
                     headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded'
+                        'Content-Type': 'application/json'
                     },
-                    body: googleFormData
+                    body: JSON.stringify(data)
                 });
+
+                if (!response.ok) throw new Error('Erro no servidor');
 
                 formPanel.style.display = 'none';
                 successPanel.style.display = 'block';

@@ -84,6 +84,202 @@ a { color: var(--primary-light); text-decoration: none; }
   justify-content: space-between;
 }
 
+@media (max-width: 900px) {
+  .app-header {
+    padding: 0 16px;
+  }
+  .header-nav {
+    display: none;
+  }
+  .header-sub {
+    display: none;
+  }
+  .header-brand img {
+    height: 32px !important;
+  }
+  .menu-toggle {
+    display: flex !important;
+  }
+}
+
+.menu-toggle {
+  display: none;
+  background: none;
+  border: 2px solid var(--border);
+  color: #fff;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--r-sm);
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all var(--dur);
+}
+
+.menu-toggle:hover {
+  background: var(--bg-panel-hover);
+  border-color: var(--primary-light);
+}
+
+/* Mobile Menu Overlay */
+.mobile-menu {
+  position: fixed;
+  inset: 0;
+  background: var(--bg-app);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  padding: 24px;
+  transform: translateX(100%);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.mobile-menu.open {
+  transform: translateX(0);
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.btn-login {
+  background: var(--bg-panel);
+  border: 2px solid var(--border);
+  color: #fff;
+  padding: 8px 16px;
+  border-radius: 2px;
+  font-size: 13px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all var(--dur);
+}
+
+.btn-login:hover {
+  border-color: var(--primary-light);
+  background: var(--bg-panel-hover);
+  transform: translateY(-1px);
+}
+
+.btn-login i {
+  width: 16px;
+  height: 16px;
+  color: var(--primary-light);
+}
+
+.user-profile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 4px 4px 4px 12px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border);
+  border-radius: 2px;
+}
+
+.user-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.user-email {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-1);
+}
+
+.user-role {
+  font-size: 9px;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: var(--primary-light);
+  letter-spacing: 0.05em;
+}
+
+.btn-logout {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text-3);
+  cursor: pointer;
+  transition: all var(--dur);
+}
+
+.btn-logout:hover {
+  background: rgba(239, 68, 68, 0.1);
+  color: #f87171;
+  border-color: #f87171;
+}
+
+.mobile-menu-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 48px;
+}
+
+.btn-close-menu {
+  background: none;
+  border: 2px solid var(--border);
+  color: var(--text-3);
+  width: 40px;
+  height: 40px;
+  border-radius: var(--r-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+@media (max-width: 900px) {
+  .header-nav { display: none; }
+  .header-actions { display: none; } /* Ocultar no mobile, usaremos o menu hamburguer */
+  .menu-toggle { display: flex !important; }
+}
+
+.mobile-nav-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.mobile-nav-link {
+  color: var(--text-1);
+  text-decoration: none;
+  font-size: 2rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  transition: color var(--dur);
+}
+
+.mobile-nav-link.active {
+  color: var(--primary-light);
+}
+
+.mobile-menu-footer {
+  margin-top: auto;
+  color: var(--text-3);
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
 .header-brand {
   display: flex;
   align-items: center;
@@ -174,11 +370,24 @@ a { color: var(--primary-light); text-decoration: none; }
   gap: 24px;
 }
 
+@media (max-width: 768px) {
+  .app-main {
+    padding: 20px 16px 40px;
+    gap: 16px;
+  }
+}
+
 .editor-section {
   display: grid;
   grid-template-columns: 420px 1fr;
   gap: 24px;
   align-items: start;
+}
+
+@media (max-width: 1024px) {
+  .editor-section {
+    grid-template-columns: 1fr;
+  }
 }
 
 .glass-panel {

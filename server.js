@@ -33,6 +33,7 @@ app.use('/api/admin',    require('./server/routes/admin'));
 app.use('/api',         require('./server/routes/export'));
 app.use('/api', require('./server/routes/pdf'));
 app.use('/api', require('./server/routes/bundle'));
+app.use('/api/recrutamento', require('./server/routes/recrutamento'));
 
 // Iniciar apenas se executado diretamente (não via Vercel/teste)
 if (require.main === module) {

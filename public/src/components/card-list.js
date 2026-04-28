@@ -76,6 +76,7 @@ const CardList = {
 
     _render() {
         const { grid, empty, count } = this.el;
+        console.log(`[CardList] Renderizando ${this.cards.length} cartas. Grid existe:`, !!grid);
         if (!grid) return;
 
         if (count) {
@@ -103,10 +104,20 @@ const CardList = {
                     this._renderGroupHeader(currentPkg);
                     lastPkg = currentPkg;
                 }
-                this._renderAppropriateItem(card);
+                try {
+                    this._renderAppropriateItem(card);
+                } catch (err) {
+                    console.error('[CardList] Erro ao renderizar carta agrupada:', card.id, err);
+                }
             });
         } else {
-            cardsToRender.forEach(card => this._renderAppropriateItem(card));
+            cardsToRender.forEach(card => {
+                try {
+                    this._renderAppropriateItem(card);
+                } catch (err) {
+                    console.error('[CardList] Erro ao renderizar carta:', card.id, err);
+                }
+            });
         }
     },
 

@@ -8,29 +8,34 @@ const AuthManager = {
     profile: null,
     session: null,
 
-    el: {
-        btnShowLogin: document.getElementById('btn-show-login'),
-        btnLogout:    document.getElementById('btn-logout'),
-        modal:        document.getElementById('login-modal'),
-        form:         document.getElementById('login-form'),
-        error:        document.getElementById('login-error'),
-        btnClose:     document.getElementById('btn-close-login'),
-        profileView:  document.getElementById('user-profile'),
-        displayEmail: document.getElementById('display-user-email'),
-        displayRole:  document.getElementById('display-user-role'),
-        
-        // Reset Password
-        resetModal:   document.getElementById('reset-password-modal'),
-        resetForm:    document.getElementById('reset-password-form'),
-        resetError:   document.getElementById('reset-error'),
-        btnCloseReset: document.getElementById('btn-close-reset'),
-
-        // Onboarding (Phase 4)
-        onboardingModal: document.getElementById('onboarding-modal'),
-        onboardingForm:  document.getElementById('onboarding-form')
-    },
+    el: {},
 
     async init() {
+        this.el = {
+            btnShowLogin: document.getElementById('btn-show-login'),
+            btnLogout:    document.getElementById('btn-logout'),
+            modal:        document.getElementById('login-modal'),
+            form:         document.getElementById('login-form'),
+            error:        document.getElementById('login-error'),
+            btnClose:     document.getElementById('btn-close-login'),
+            profileView:  document.getElementById('user-profile'),
+            displayEmail: document.getElementById('display-user-email'),
+            displayRole:  document.getElementById('display-user-role'),
+            
+            // Reset Password
+            resetModal:   document.getElementById('reset-password-modal'),
+            resetForm:    document.getElementById('reset-password-form'),
+            resetError:   document.getElementById('reset-error'),
+            btnCloseReset: document.getElementById('btn-close-reset'),
+    
+            // Onboarding
+            onboardingModal: document.getElementById('onboarding-modal'),
+            onboardingForm:  document.getElementById('onboarding-form'),
+    
+            // Panels
+            actionsBar:      document.getElementById('print-actions-bar'),
+        };
+
         this.client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
         this._bindEvents();
         this._setupAuthListener();
@@ -172,9 +177,15 @@ const AuthManager = {
             // Texto legível para o cargo
             const roleLabels = { 'admin': 'Admin', 'member': 'Membro', 'visitor': 'Visitante' };
             if (this.el.displayRole)  this.el.displayRole.textContent = roleLabels[role] || role;
+
+            // Mostrar barra de impressão apenas para membros/admins
+            if (role === 'admin' || role === 'member') {
+                this.el.actionsBar?.classList.remove('hidden');
+            }
         } else {
             this.el.btnShowLogin?.classList.remove('hidden');
             this.el.profileView?.classList.add('hidden');
+            this.el.actionsBar?.classList.add('hidden');
         }
 
         // Aplicar classe de cargo no body para CSS

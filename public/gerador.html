@@ -32,6 +32,9 @@
   <!-- Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   
+  <!-- html2canvas -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
 </head>
@@ -189,16 +192,22 @@
             <input id="slider-zoom" type="range" min="0.5" max="2.5" step="0.05" value="1" class="attr-slider" />
             <span class="zoom-display" id="disp-zoom">100%</span>
           </div>
-          <button type="button" class="btn-reset-preview" id="btn-reset-transform">
-            <i data-lucide="rotate-ccw"></i>
-            <span>RESETAR ENQUADRAMENTO</span>
-          </button>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%;">
+            <button type="button" class="btn-reset-preview" id="btn-reset-transform" style="width: 100%;">
+              <i data-lucide="rotate-ccw"></i>
+              <span>RESETAR</span>
+            </button>
+            <button type="button" class="btn btn-primary" id="btn-download-png" style="width: 100%;">
+              <i data-lucide="download"></i>
+              <span>BAIXAR PNG</span>
+            </button>
+          </div>
         </div>
       </div>
 
     </section>
 
-    <section class="actions-bar glass-panel hide-mobile">
+    <section class="actions-bar glass-panel hide-mobile hidden" id="print-actions-bar">
       <div class="actions-left">
         <button class="btn btn-primary" id="btn-open-print-modal">
           <i data-lucide="printer"></i>
@@ -255,7 +264,9 @@
   </main>
 
   <footer class="app-footer">
-    <span>Balela Trunfo © 2026 · Victor Zanin Rubinec</span>
+    <div class="footer-inner">
+      <span>Season Pass Balela © 2026 · Victor Zanin Rubinec</span>
+    </div>
   </footer>
 
   <!-- Modal Gerenciar Pacotes -->

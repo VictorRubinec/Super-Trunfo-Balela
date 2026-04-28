@@ -16,18 +16,20 @@
 - [x] Aplicar novo design "Solid Flat" na Home
 
 ## Fase 3: Sobre Nós e Equipe
-- [ ] Criar `sobre.html`
-- [ ] Implementar grid de membros da equipe
-- [ ] Adicionar perfil inicial do Victor (Cargo, Bio, Links)
-- [ ] Criar template para futuros membros
+- [x] Criar `sobre.html`
+- [x] Implementar grid de membros da equipe
+- [x] Adicionar perfil inicial do Victor (Cargo, Bio, Links)
+- [x] Criar template para futuros membros
+- [x] Criar `galeria.html` standalone para exibição de todas as cartas
 
 ## Fase 4: Funcionalidades e Backend
-- [ ] Implementar botão "Baixar Carta (PNG)" no gerador
-- [ ] Testar exportação com fundo transparente
-- [ ] Configurar serviço de email no `server/services/emailService.js` usando Resend
-- [ ] Substituir envios de email antigos pelo novo sistema
+- [x] Implementar botão "Baixar Carta (PNG)" no gerador
+- [x] Testar exportação com fundo transparente (html2canvas)
+- [x] Configurar serviço de email no `server/services/emailService.js` usando Resend
+- [x] Substituir envios de email antigos pelo novo sistema
 
 ## Fase 5: Finalização
-- [ ] Revisar consistência visual em todas as páginas
-- [ ] Testar formulário de recrutamento com o novo design
-- [ ] Realizar merge na `main`
+- [x] Revisar consistência visual em todas as páginas
+- [x] Adicionar meta tags SEO finais
+- [x] Testar todos os links e navegação mobile
+- [x] Preparar resumo final do projeto
