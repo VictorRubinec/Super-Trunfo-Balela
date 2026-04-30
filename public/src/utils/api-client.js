@@ -4,10 +4,17 @@ const BASE = '/api';
 
 /** Helper para pegar o token sem depender do AuthManager (evita ciclo) */
 function getLocalToken() {
-    const projectID = new URL(SUPABASE_URL).hostname.split('.')[0];
-    const storageKey = `sb-${projectID}-auth-token`;
-    const session = JSON.parse(localStorage.getItem(storageKey));
-    return session?.access_token || null;
+    const keys = Object.keys(localStorage);
+    const sessionKey = keys.find(key => key.startsWith('sb-') && key.endsWith('-auth-token'));
+    
+    if (!sessionKey) return null;
+    
+    try {
+        const session = JSON.parse(localStorage.getItem(sessionKey));
+        return session?.access_token || null;
+    } catch (e) {
+        return null;
+    }
 }
 
 /** Wrapper fetch com tratamento de erro padrão */
@@ -137,6 +144,30 @@ const ApiClient = {
         return apiFetch(`${BASE}/admin/profiles`);
     },
 
+    async checkRole() {
+        return apiFetch(`${BASE}/admin/check-role`);
+    },
+
+    async createFolder(name) {
+        return apiFetch(`${BASE}/gallery/folders`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name })
+        });
+    },
+
+    async deleteFile(id) {
+        return apiFetch(`${BASE}/gallery/file/${id}`, { method: 'DELETE' });
+    },
+
+    async renameFile(id, newName) {
+        return apiFetch(`${BASE}/gallery/file/${id}/rename`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name: newName })
+        });
+    },
+
     async inviteUser(email, role = 'member') {
         return apiFetch(`${BASE}/admin/invite`, {
             method: 'POST',
@@ -170,6 +201,24 @@ const ApiClient = {
     async getAuditLogs() {
         return apiFetch(`${BASE}/admin/logs`);
     },
+
+    async getDashboardData() {
+        return apiFetch(`${BASE}/admin/dashboard`);
+    },
+
+    async trackVisit(data) {
+        // Envia via beacon se suportado ou fetch normal
+        const body = JSON.stringify(data);
+        if (navigator.sendBeacon) {
+            navigator.sendBeacon(`${BASE}/admin/track`, body);
+        } else {
+            return apiFetch(`${BASE}/admin/track`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body
+            });
+        }
+    }
 };
 
 export default ApiClient;

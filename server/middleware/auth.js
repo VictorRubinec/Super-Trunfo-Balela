@@ -26,6 +26,7 @@ async function authenticate(req, res, next) {
         const { data: { user }, error } = await userClient.auth.getUser();
 
         if (error || !user) {
+            console.error('[AuthMiddleware] Erro ao validar token:', error?.message || 'Usuário não encontrado');
             return res.status(401).json({ error: 'Sessão inválida ou expirada' });
         }
 

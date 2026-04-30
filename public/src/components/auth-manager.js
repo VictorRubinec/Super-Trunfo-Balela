@@ -40,7 +40,7 @@ const AuthManager = {
         this._bindEvents();
         this._setupAuthListener();
         this._checkHashEvents();
-        await this.checkSession();
+        return await this.checkSession();
     },
 
     _setupAuthListener() {
@@ -137,8 +137,19 @@ const AuthManager = {
                 .select('*')
                 .eq('id', this.user.id)
                 .single();
-            if (!error) this.profile = data;
-        } catch (err) { console.error('[Auth] Erro perfil:', err); }
+            
+            if (error) {
+                console.error('[Auth] Erro ao buscar perfil:', error.message);
+            }
+            this.profile = data;
+        } catch (err) { 
+            try {
+                const res = await ApiClient.checkRole();
+                this.profile = { role: res.role };
+            } catch (apiErr) {
+                console.error('[Auth] Erro ao buscar cargo:', apiErr);
+            }
+        }
     },
 
     async login(email, password) {
@@ -164,6 +175,9 @@ const AuthManager = {
     updateUI() {
         const isLoggedIn = !!this.user;
         const role = this.profile?.role || (isLoggedIn ? 'member' : 'anonymous');
+        
+        // Se estiver logado mas o perfil ainda não carregou, não tentamos gerenciar painéis ainda
+        if (isLoggedIn && !this.profile) return;
 
         // Limpar classes de estado
         document.body.classList.remove('is-anonymous', 'is-visitor', 'is-member', 'is-admin', 'logged-in');
@@ -197,7 +211,24 @@ const AuthManager = {
     },
 
     getToken() { return this.session?.access_token || null; },
-    isAdmin() { return this.profile?.role === 'admin'; }
+    isAdmin() { return this.profile?.role === 'admin'; },
+
+    /**
+     * Espera o AuthManager estar pronto (sessão e perfil carregados)
+     */
+    async waitReady(timeout = 5000) {
+        if (this.profile) return this.profile;
+        
+        return new Promise((resolve) => {
+            const start = Date.now();
+            const check = setInterval(() => {
+                if (this.profile || (Date.now() - start > timeout)) {
+                    clearInterval(check);
+                    resolve(this.profile);
+                }
+            }, 100);
+        });
+    }
 };
 
 export default AuthManager;

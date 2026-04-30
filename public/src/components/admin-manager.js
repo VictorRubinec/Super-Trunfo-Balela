@@ -30,11 +30,17 @@ const AdminManager = {
     /**
      * Chamado pelo AuthManager quando detecta que o usuário é ADMIN
      */
+    isLoading: false,
     async show() {
-        if (!this.el.panel) return;
-        this.el.panel.classList.remove('hidden');
-        await this.loadUsers();
-        await this.loadLogs();
+        if (!this.el.panel || this.isLoading) return;
+        this.isLoading = true;
+        try {
+            this.el.panel.classList.remove('hidden');
+            await this.loadUsers();
+            await this.loadLogs();
+        } finally {
+            this.isLoading = false;
+        }
     },
 
     hide() {

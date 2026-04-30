@@ -143,26 +143,8 @@
     <section class="team-section">
       <div class="app-main">
         <h2 class="section-title">Nossos Membros</h2>
-        <div class="team-grid">
-          
-          <!-- Victor Zanin Rubinec -->
-          <div class="member-card">
-            <div class="member-photo">
-              <i data-lucide="user"></i>
-            </div>
-            <h3 class="member-name">Victor Zanin Rubinec</h3>
-            <span class="member-role">Criador & Lead Developer</span>
-            <p class="member-bio">
-              Idealizador do Season Pass e responsável por transformar a brincadeira do cartão fidelidade em realidade. 
-              Apaixonado pela comunidade do Balela e por criar caminhos novos.
-            </p>
-            <div class="member-socials">
-              <a href="#" class="social-link" title="Instagram"><i data-lucide="instagram"></i></a>
-              <a href="#" class="social-link" title="LinkedIn"><i data-lucide="linkedin"></i></a>
-              <a href="#" class="social-link" title="Portfólio"><i data-lucide="external-link"></i></a>
-            </div>
-          </div>
-
+        <div class="team-grid" id="team-grid">
+          <!-- Carregado dinamicamente -->
         </div>
       </div>
     </section>
@@ -190,9 +172,66 @@
   <!-- Scripts -->
   <script type="module">
     import { renderNavbar } from './src/components/Navbar.js';
+    
+    async function loadTeam() {
+      const grid = document.getElementById('team-grid');
+      if (!grid) return;
+
+      try {
+        const res = await fetch('/api/public/team');
+        const team = await res.json();
+
+        if (team.length === 0) {
+          grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: var(--text-3);">Nenhum membro da equipe disponível no momento.</p>';
+          return;
+        }
+
+        grid.innerHTML = team.map(member => {
+          const socials = member.social_links || [];
+          const socialHtml = socials.map(s => {
+            const icon = getSocialIcon(s.platform);
+            return `<a href="${s.url}" class="social-link" target="_blank" title="${s.platform}"><i data-lucide="${icon}"></i></a>`;
+          }).join('');
+
+          return `
+            <div class="member-card">
+              <div class="member-photo">
+                ${member.avatar_url 
+                  ? `<img src="${member.avatar_url}" style="width: 100%; height: 100%; object-fit: cover; border-radius: var(--r-md);">` 
+                  : '<i data-lucide="user"></i>'}
+              </div>
+              <h3 class="member-name">${member.display_name || 'Membro do Time'}</h3>
+              <span class="member-role">${member.role === 'admin' ? 'Administrador' : 'Membro'}</span>
+              <p class="member-bio">${member.bio || 'Sem biografia disponível.'}</p>
+              <div class="member-socials">
+                ${socialHtml}
+              </div>
+            </div>
+          `;
+        }).join('');
+
+        lucide.createIcons();
+      } catch (err) {
+        console.error('Erro ao carregar equipe:', err);
+        grid.innerHTML = '<p>Erro ao carregar a equipe.</p>';
+      }
+    }
+
+    function getSocialIcon(platform) {
+      const icons = {
+        instagram: 'instagram',
+        discord: 'message-square',
+        twitch: 'twitch',
+        github: 'github',
+        twitter: 'twitter',
+        youtube: 'youtube'
+      };
+      return icons[platform.toLowerCase()] || 'external-link';
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
       renderNavbar();
-      lucide.createIcons();
+      loadTeam();
     });
   </script>
 </body>

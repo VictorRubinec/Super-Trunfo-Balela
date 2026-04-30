@@ -13,6 +13,32 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Inicializar Navbar
     renderNavbar();
 
+    // Rastreamento de Visita (Métricas)
+    const initTracking = async () => {
+        const referrer = document.referrer;
+        let origin = 'direto';
+        
+        if (referrer) {
+            if (referrer.includes('google')) origin = 'google';
+            else if (referrer.includes('instagram')) origin = 'instagram';
+            else if (referrer.includes('facebook')) origin = 'facebook';
+            else origin = new URL(referrer).hostname;
+        }
+
+        let sessionId = sessionStorage.getItem('visit_id');
+        if (!sessionId) {
+            sessionId = Math.random().toString(36).substring(7);
+            sessionStorage.setItem('visit_id', sessionId);
+        }
+
+        ApiClient.trackVisit({
+            origin,
+            page: window.location.pathname,
+            sessionId
+        });
+    };
+    initTracking();
+
     // Inicializar Managers
     AdminManager.init();
     await AuthManager.init();

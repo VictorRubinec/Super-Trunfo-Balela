@@ -5,6 +5,11 @@ const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_KEY = process.env.SUPABASE_KEY;
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
+console.log('[Supabase] Verificando chaves...');
+console.log('[Supabase] URL:', SUPABASE_URL ? '✅ Carregada' : '❌ VAZIA');
+console.log('[Supabase] Anon Key:', SUPABASE_KEY ? '✅ Carregada' : '❌ VAZIA');
+console.log('[Supabase] Service Key:', SUPABASE_SERVICE_ROLE_KEY ? '✅ Carregada' : '❌ VAZIA');
+
 // Função auxiliar para criar cliente de forma segura
 function safeCreateClient(url, key, name = 'Público') {
     if (!url || !key) {
@@ -33,5 +38,37 @@ const adminSupabase = safeCreateClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, 
 // Expõe ambos para suportar desestruturação { supabase, adminSupabase }
 supabase.supabase = supabase;
 supabase.adminSupabase = adminSupabase;
+
+/**
+ * Registra uma ação na tabela de auditoria
+ */
+supabase.logAudit = async (userId, action, description = {}, ip = '') => {
+    try {
+        await adminSupabase.from('audit_logs').insert({
+            user_id: userId,
+            action,
+            description,
+            ip_address: ip
+        });
+    } catch (err) {
+        console.error('[Audit] Erro ao gravar log:', err.message);
+    }
+};
+
+/**
+ * Registra uma visita ao site
+ */
+supabase.trackVisit = async (origin, page, sessionId, userId = null) => {
+    try {
+        await adminSupabase.from('site_metrics').insert({
+            origin: origin || 'direto',
+            page_visited: page,
+            session_id: sessionId,
+            user_id: userId
+        });
+    } catch (err) {
+        console.error('[Metrics] Erro ao rastrear visita:', err.message);
+    }
+};
 
 module.exports = supabase;

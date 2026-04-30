@@ -23,6 +23,7 @@ export function renderNavbar() {
           <li><a href="/gerador" class="nav-link">Gerador</a></li>
           <li><a href="/galeria" class="nav-link">Galeria</a></li>
           <li><a href="/sobre" class="nav-link">Sobre</a></li>
+          <li class="admin-only"><a href="/admin" class="nav-link admin-nav-link" style="color: var(--primary-light); font-weight: 800;">Admin</a></li>
         </ul>
       </nav>
 
@@ -62,6 +63,7 @@ export function renderNavbar() {
           <li><a href="/gerador" class="mobile-nav-link">Gerador</a></li>
           <li><a href="/galeria" class="mobile-nav-link">Galeria</a></li>
           <li><a href="/sobre" class="mobile-nav-link">Sobre</a></li>
+          <li class="admin-only"><a href="/admin" class="mobile-nav-link">Dashboard Admin</a></li>
         </ul>
         <div class="mobile-menu-footer">
           <p>Balela Trunfo © 2026</p>

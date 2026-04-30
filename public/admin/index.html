@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Balela Trunfo | Admin</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="./css/admin.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Outfit:wght@500;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        // Trava de segurança ultra-rápida (previne o flash de conteúdo)
+        (function() {
+            const sessionKey = Object.keys(localStorage).find(k => k.startsWith('sb-') && k.endsWith('-auth-token'));
+            const session = sessionKey ? localStorage.getItem(sessionKey) : null;
+            if (!session) {
+                window.location.href = '/error';
+            }
+        })();
+    </script>
+</head>
+<body class="admin-body">
+    
+    <div class="admin-wrapper">
+        <!-- Sidebar -->
+        <aside class="admin-sidebar">
+            <div class="sidebar-header">
+                <img src="../assets/logo/logo-4.png" alt="Balela Logo" class="sidebar-logo">
+                <h2>Admin</h2>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <button class="nav-item active" data-section="metrics">
+                    <i data-lucide="bar-chart-3"></i> Dashboard
+                </button>
+                <button class="nav-item" data-section="users">
+                    <i data-lucide="users"></i> Usuários
+                </button>
+                <button class="nav-item" data-section="gallery">
+                    <i data-lucide="image"></i> Galeria
+                </button>
+                <button class="nav-item" data-section="audit">
+                    <i data-lucide="clipboard-list"></i> Auditoria
+                </button>
+                <button class="nav-item" data-section="profile">
+                    <i data-lucide="user"></i> Meu Perfil
+                </button>
+                <hr>
+                <a href="../index.html" class="nav-item">
+                    <i data-lucide="external-link"></i> Ir para o Site
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <button id="btn-logout-admin">
+                    <i data-lucide="log-out"></i> Sair
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="admin-main">
+            <header class="main-header">
+                <h1 id="section-title">Dashboard</h1>
+                <div class="admin-user-info">
+                    <span id="admin-email">admin@balela.com</span>
+                    <div class="admin-badge">ADMIN</div>
+                </div>
+            </header>
+
+            <!-- Metrics Section -->
+            <section id="metrics" class="admin-section active">
+                <div class="metrics-grid">
+                    <div class="metric-card glass">
+                        <div class="metric-icon"><i data-lucide="users"></i></div>
+                        <div class="metric-info">
+                            <h3>Tráfego Total</h3>
+                            <p class="metric-value" id="total-traffic">0</p>
+                        </div>
+                    </div>
+                    <div class="metric-card glass">
+                        <div class="metric-icon"><i data-lucide="database"></i></div>
+                        <div class="metric-info">
+                            <h3>Supabase</h3>
+                            <p class="metric-value" id="supabase-storage">0MB</p>
+                        </div>
+                    </div>
+                    <div class="metric-card glass">
+                        <div class="metric-icon"><i data-lucide="hard-drive"></i></div>
+                        <div class="metric-info">
+                            <h3>Google Drive</h3>
+                            <p class="metric-value" id="drive-storage">0GB</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="charts-row">
+                    <div class="chart-container glass">
+                        <h3>Origem do Tráfego</h3>
+                        <canvas id="trafficChart"></canvas>
+                    </div>
+                    <div class="chart-container glass">
+                        <h3>Distribuição de Armazenamento</h3>
+                        <canvas id="storageChart"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Users Section -->
+            <section id="users" class="admin-section">
+                <div class="section-header-actions">
+                    <h2>Gerenciar Equipe</h2>
+                    <div class="user-filters">
+                        <input type="text" placeholder="Buscar usuário..." id="user-search-filter">
+                    </div>
+                    <button class="btn-primary" id="btn-new-user">✚ Convidar Usuário</button>
+                </div>
+                
+                <div class="table-wrapper glass">
+                    <table id="users-table">
+                        <thead>
+                            <tr>
+                                <th>Usuário</th>
+                                <th>E-mail</th>
+                                <th>Cargo</th>
+                                <th>Criado em</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="users-table-body">
+                            <!-- Injetado via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Gallery Section -->
+            <section id="gallery" class="admin-section">
+                <div class="gallery-header">
+                    <div class="gallery-view-selector">
+                        <button class="view-btn active" data-view="photos">🖼️ Fotos</button>
+                        <button class="view-btn" data-view="albums">📁 Álbuns</button>
+                    </div>
+                    <div class="header-actions">
+                        <button class="btn-primary" id="btn-create-album">✚ Novo Álbum</button>
+                    </div>
+                </div>
+
+                <div class="gallery-controls glass" id="gallery-controls-photos">
+                    <div class="control-group">
+                        <label>Filtrar por Álbum:</label>
+                        <select id="admin-gallery-filter">
+                            <option value="">Todos os Álbuns</option>
+                            <!-- Injetado via JS -->
+                        </select>
+                    </div>
+                    <div class="gallery-stats">
+                        <span id="gallery-photo-count">0 fotos encontradas</span>
+                    </div>
+                </div>
+
+                <div class="gallery-admin-container">
+                    <div class="gallery-image-grid active-view" id="admin-gallery-images">
+                        <!-- Injetado via JS -->
+                    </div>
+                    <div class="gallery-albums-container hidden" id="albums-section">
+                        <div class="albums-toolbar">
+                            <span>Gerenciar Álbuns</span>
+                            <div class="layout-controls">
+                                <button class="layout-btn active" data-layout="grid" title="Visualização em Grade"><i data-lucide="layout-grid"></i></button>
+                                <button class="layout-btn" data-layout="list" title="Visualização em Lista"><i data-lucide="list"></i></button>
+                            </div>
+                        </div>
+                        <div class="gallery-albums-grid" id="admin-gallery-albums">
+                            <!-- Injetado via JS -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Audit Section -->
+            <section id="audit" class="admin-section">
+                <div class="section-header-actions">
+                    <h2>Logs de Auditoria</h2>
+                    <div class="audit-filters">
+                        <input type="text" placeholder="Filtrar ação..." id="audit-filter-action">
+                    </div>
+                </div>
+                <div class="table-wrapper glass">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Data</th>
+                                <th>Usuário</th>
+                                <th>Ação</th>
+                                <th>Detalhes</th>
+                            </tr>
+                        </thead>
+                        <tbody id="audit-table-body">
+                            <!-- Injetado via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Profile Section -->
+            <section id="profile" class="admin-section">
+                <div class="section-header-actions">
+                    <h2>Meu Perfil</h2>
+                    <p style="color: #888">Configure como você aparece para a equipe e no site</p>
+                </div>
+
+                <div class="profile-container glass">
+                    <form id="form-profile">
+                        <div class="profile-layout">
+                            <div class="profile-avatar-side">
+                                <div class="avatar-upload" id="avatar-preview-container">
+                                    <img src="/assets/avatars/default-avatar.png" id="profile-avatar-img" alt="Avatar">
+                                    <label for="profile-avatar-input" class="avatar-edit-btn">
+                                        <i data-lucide="camera"></i>
+                                    </label>
+                                    <input type="file" id="profile-avatar-input" hidden accept="image/*">
+                                </div>
+                                <div class="profile-toggle">
+                                    <div class="custom-checkbox">
+                                        <input type="checkbox" id="profile-show-team">
+                                        <label for="profile-show-team">Aparecer no "Sobre Nós"</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="profile-main-fields">
+                                <div class="form-group">
+                                    <label>Nome de Exibição</label>
+                                    <input type="text" id="profile-display-name" placeholder="Como quer ser chamado">
+                                </div>
+                                <div class="form-group">
+                                    <label>E-mail da Conta</label>
+                                    <input type="email" id="profile-email" readonly style="opacity: 0.6; cursor: not-allowed">
+                                    <small style="color: #666">O e-mail não pode ser alterado por aqui.</small>
+                                </div>
+                                <div class="form-group">
+                                    <label>Bio (Sua história)</label>
+                                    <textarea id="profile-bio" class="glass-textarea" style="height: 100px" placeholder="Conte um pouco sobre você..."></textarea>
+                                </div>
+
+                                <div class="social-links-manager">
+                                    <label>Redes Sociais</label>
+                                    <div id="social-links-list">
+                                        <!-- Itens dinâmicos via JS -->
+                                    </div>
+                                    <button type="button" class="btn btn-outline btn-sm" id="btn-add-social">
+                                        <i data-lucide="plus"></i> Adicionar Rede
+                                    </button>
+                                </div>
+
+                                <div class="profile-actions" style="margin-top: 30px">
+                                    <button type="submit" class="btn btn-primary" style="width: 100%">Salvar Perfil</button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Modals -->
+    <div id="modal-container">
+        <!-- Modal Novo Usuário -->
+        <!-- Modal Novo Álbum -->
+        <div id="modal-new-album" class="modal-overlay">
+            <div class="modal-content glass">
+                <h3>📁 Criar Novo Álbum</h3>
+                <p>O álbum será criado como uma pasta no Google Drive.</p>
+                <form id="form-new-album">
+                    <div class="form-group">
+                        <label for="album-name">Nome do Álbum</label>
+                        <input type="text" id="album-name" placeholder="Ex: Season Pass 2024" required>
+                    </div>
+                    <div class="modal-actions">
+                        <button type="button" class="btn btn-secondary" id="btn-cancel-album">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Criar Álbum</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Modal Edição de Álbum -->
+        <div id="modal-edit-album" class="modal-overlay">
+            <div class="modal-content glass modal-large">
+                <h3>✏️ Editar Álbum</h3>
+                <form id="form-edit-album">
+                    <input type="hidden" id="edit-album-id">
+                    
+                    <div class="form-group">
+                        <label for="edit-album-name">Título do Álbum</label>
+                        <input type="text" id="edit-album-name" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Foto de Capa</label>
+                        <div class="current-cover-preview" id="current-cover-preview">
+                            <!-- Injetado via JS -->
+                        </div>
+                        
+                        <div class="upload-zone" id="upload-zone">
+                            <i data-lucide="upload-cloud"></i>
+                            <p>Clique ou arraste para subir uma nova capa</p>
+                            <input type="file" id="input-album-cover" accept="image/*" hidden>
+                            <button type="button" class="btn btn-sm btn-outline" id="btn-trigger-upload">Selecionar Arquivo</button>
+                        </div>
+                        <span id="upload-status-text" style="font-size: 0.8rem; margin-top: 5px; display: block;"></span>
+                    </div>
+
+                    <div class="modal-actions">
+                        <button type="button" class="btn btn-secondary" id="btn-cancel-edit-album">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Salvar Alterações</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Modal Detalhes Auditoria -->
+        <div id="modal-audit-details" class="modal-overlay">
+            <div class="modal-content glass modal-large">
+                <h3>🔍 Detalhes do Log</h3>
+                <div class="audit-details-grid">
+                    <div class="detail-item">
+                        <label>Data:</label>
+                        <span id="detail-date"></span>
+                    </div>
+                    <div class="detail-item">
+                        <label>Usuário:</label>
+                        <span id="detail-user"></span>
+                    </div>
+                    <div class="detail-item">
+                        <label>Ação:</label>
+                        <span id="detail-action" class="badge"></span>
+                    </div>
+                    <div class="detail-item full-width">
+                        <label>Dados Técnicos (JSON):</label>
+                        <textarea id="detail-json" class="glass-textarea" readonly></textarea>
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-primary" id="btn-close-audit" style="width: 100%">Fechar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../src/utils/toast.js" type="module"></script>
+    <script src="./js/dashboard.js" type="module"></script>
+    <script>lucide.createIcons();</script>
+</body>
+</html>
