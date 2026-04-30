@@ -1,0 +1,126 @@
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 5%;
+  background-color: var(--bg-primary);
+  border-bottom: 1px solid var(--border-color);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.nav-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.nav-brand-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.nav-brand {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  text-decoration: none;
+  line-height: 1;
+}
+
+.nav-sub-brand {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--purple-primary);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.nav-links {
+  display: flex;
+  gap: 2rem;
+  align-items: center;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.nav-link {
+  color: var(--text-primary);
+  font-weight: 600;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  transition: var(--transition);
+  opacity: 0.7;
+}
+
+.nav-link:hover, .nav-link.active {
+  opacity: 1;
+  color: var(--text-primary);
+  border-bottom: 2px solid var(--purple-primary);
+}
+
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.btn-enter {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1.2rem;
+  background-color: transparent;
+  color: var(--text-primary);
+  border: 1px solid var(--text-primary);
+  border-radius: var(--radius-sm);
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  transition: var(--transition);
+}
+
+.btn-enter:hover {
+  background-color: var(--text-primary);
+  color: var(--bg-primary);
+}
+
+.footer {
+  width: 100%;
+  padding: 2.5rem 5%;
+  background-color: var(--bg-primary);
+  border-top: 1px solid var(--border-color);
+  text-align: center;
+  margin-top: auto;
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  z-index: 10;
+}
+
+.footer a {
+  color: var(--purple-primary);
+  text-decoration: none;
+  font-weight: 700;
+  transition: var(--transition);
+}
+
+.footer a:hover {
+  filter: brightness(1.2);
+  text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+  .nav-links {
+    display: none; /* Simplificando para o MVP, depois adicionamos menu hambúrguer */
+  }
+  
+  .navbar {
+    padding: 1rem;
+  }
+}

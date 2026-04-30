@@ -1,0 +1,129 @@
+.editor-section {
+  display: grid;
+  grid-template-columns: 420px 1fr;
+  gap: 24px;
+  align-items: start;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 32px;
+}
+
+@media (max-width: 1024px) {
+  .editor-section {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Sticky Preview para Desktop */
+@media (min-width: 1025px) {
+  .preview-panel {
+    position: sticky;
+    top: 100px; /* Ajuste para não bater no navbar */
+    align-self: start;
+    height: auto;
+  }
+}
+
+.glass-panel {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 28px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.panel-title {
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--purple-primary);
+  margin-bottom: 20px;
+}
+
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.panel-header .panel-title {
+  margin-bottom: 0;
+}
+
+.preview-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 520px;
+  border-radius: var(--radius-md);
+  margin-bottom: 24px;
+  overflow: hidden;
+  position: relative;
+}
+
+.preview-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.zoom-control {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.zoom-display {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--purple-primary);
+  min-width: 45px;
+}
+
+.attributes-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 8px;
+  padding: 16px;
+  background: var(--bg-primary);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+}
+
+@media (max-width: 768px) {
+  .editor-section {
+    padding: 16px;
+    gap: 16px;
+  }
+
+  .glass-panel {
+    padding: 20px;
+  }
+
+  .sticky-mobile-preview {
+    position: sticky;
+    top: 60px;
+    z-index: 90;
+    margin: -16px -16px 10px;
+    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+    border-left: none;
+    border-right: none;
+    border-top: none;
+    background: var(--bg-primary);
+    padding: 12px 16px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  }
+
+  .sticky-mobile-preview .panel-title { display: none; }
+  .sticky-mobile-preview .panel-header { margin-bottom: 0; }
+  .sticky-mobile-preview .preview-wrapper { 
+    min-height: auto; 
+    padding: 10px 0;
+    transform: scale(0.7);
+    margin: -40px 0;
+  }
+  .sticky-mobile-preview .preview-controls { display: none; }
+}
