@@ -82,32 +82,36 @@ Este documento é o **Checklist Operacional e Arquitetural** para a Inteligênci
 - [x] Implementar a lógica de PAN (Drag) e Zoom in/out via CSS `transform` na foto carregada dentro da carta.
 - [x] Teste Unitário QA (Vitest): Testar arquivo de validação que impede inputs `> 10` ou `< 1` nos atributos da carta.
 
-### 3.3. Exportação Nativa e Motor PDF
+### 3.3. Exportação Nativa e Motor PDF (EM ANDAMENTO)
 - [x] Geração Front-end (PNG Público): Instalar `html2canvas-pro` (ou `dom-to-image`) e atrelar a um botão `export-png` chamando método local via Blob URL.
-- [ ] Geração Back-end (PDF Admin): Criar Rota `app/api/export/route.ts`.
-- [ ] Backend: Instalar dependências para serverless (`puppeteer-core`, `@sparticuz/chromium`).
-- [ ] Backend: Fazer o Puppeteer visitar o layout bruto de um `<balela-card>`, esperar a foto carregar, tirar o print e compilar um PDF Blob via buffer para retorno ao Client.
-- [ ] Teste E2E QA (Playwright): Simular clique em "Download PNG" e checar download efetuado.
+- [x] UI do Gerenciador de Impressão: Criar `PrintModal`, `SelectionTree` e `PrintStore` para seleção em lote.
+- [x] Lógica de Aproveitamento: Implementar cálculo de grid (cartas por folha) dinâmico baseado em margem e sangria.
+- [x] Backend: Criar Rota `app/api/export/route.ts` para orquestrar a geração.
+- [x] Backend: Implementar pipeline oficial server-side para PDF profissional (Opção A).
+- [x] Backend: Lógica de verso espelhado (Mirroring) para impressão frente e verso correta.
+- [x] ZIP Engine: Integrar `jszip` para compactar PDFs de frentes e versos em um único download.
+- [x] API assíncrona: Criar `GET /api/export/:jobId` e `GET /api/export/:jobId/download`.
+- [x] Teste E2E QA (Playwright): Simular clique em "Download PNG" e checar download efetuado.
 
 ---
 
 ## 🔵 Fase 4: Integrações e Comunidade
 
 ### 4.1. Comunicação via E-mail
-- [ ] Instalar SDK do Resend (`npm install resend`).
-- [ ] Infra: Criar `src/infrastructure/services/ResendEmailService.ts`.
-- [ ] API Serverless: Criar endpoint `/api/recruitment` que valida dados e dispara um e-mail interno para os administradores, além de inserir log no Supabase.
-- [ ] Frontend: Criar o Formulário de Inscrição em `/recrutamento`.
+- [x] Instalar SDK do Resend (`npm install resend`).
+- [x] Infra: Criar `src/infrastructure/services/ResendEmailService.ts`.
+- [x] API Serverless: Criar endpoint `/api/recruitment` que valida dados e dispara um e-mail interno para os administradores, além de inserir log no Supabase.
+- [x] Frontend: Criar o Formulário de Inscrição em `/recrutamento`.
 
 ### 4.2. Galeria Drive (Sincronização Server-to-Server)
-- [ ] Instalar `googleapis`.
-- [ ] Infra: Criar `src/infrastructure/services/GoogleDriveService.ts` implementando JWT auth server-to-server (`googleapis.auth.GoogleAuth`).
-- [ ] Backend Serverless: Construir `/api/gallery` com lógicas de Listagem, Paginação Básica e Cache do Drive.
+- [x] Instalar `googleapis`.
+- [x] Infra: Criar `src/infrastructure/services/GoogleDriveService.ts` implementando JWT auth server-to-server (`googleapis.auth.GoogleAuth`).
+- [x] Backend Serverless: Construir `/api/gallery` com lógicas de Listagem, Paginação Básica e Cache do Drive.
 
 ### 4.3. Fronteira da Comunidade e Caching
-- [ ] Frontend: Montar a Página `/galeria` consumindo a API.
-- [ ] Backend: Criar Server Action Protegida por Admin `approveGalleryPhoto(id)`.
-- [ ] Backend: Adicionar `revalidatePath('/galeria')` na Server Action acima (Estratégia de On-Demand Revalidation).
+- [x] Frontend: Montar a Página `/galeria` consumindo a API.
+- [x] Backend: Criar Server Action Protegida por Admin `approveGalleryPhoto(id)`.
+- [x] Backend: Adicionar `revalidatePath('/galeria')` na Server Action acima (Estratégia de On-Demand Revalidation).
 
 ---
 

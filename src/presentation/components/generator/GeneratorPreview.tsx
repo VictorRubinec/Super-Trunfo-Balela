@@ -4,21 +4,57 @@ import { useGeneratorStore } from '@/store/generatorStore';
 import { CardPreview } from '../ui/CardPreview';
 import { Button } from '../ui/Button';
 import { Slider } from '../ui/Slider';
-import { useRef, useState } from 'react';
+import { PrintModal } from './PrintModal';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { createClient } from '@/infrastructure/db/supabase-client';
 
 export function GeneratorPreview() {
   const { cardData, showBack, toggleShowBack, updateCardData } = useGeneratorStore();
+  const supabase = useMemo(() => createClient(), []);
+  const [role, setRole] = useState<'admin' | 'member' | 'visitor' | null>(null);
   
   const [isDragging, setIsDragging] = useState(false);
   const dragStart = useRef({ x: 0, y: 0 });
   const currentPos = useRef({ x: 0, y: 0 });
   const wrapperRef = useRef<HTMLDivElement>(null);
+  const [isPrintModalOpen, setIsPrintModalOpen] = useState(false);
+
+  useEffect(() => {
+    let isMounted = true;
+    const loadRole = async () => {
+      const { data } = await supabase.auth.getUser();
+      const user = data.user;
+      if (!isMounted) return;
+
+      if (!user) {
+        setRole('visitor');
+        return;
+      }
+
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', user.id)
+        .single();
+      if (!isMounted) return;
+      setRole((profile?.role as 'admin' | 'member' | 'visitor') || 'member');
+    };
+
+    void loadRole();
+    const { data: subscription } = supabase.auth.onAuthStateChange(() => {
+      void loadRole();
+    });
+
+    return () => {
+      isMounted = false;
+      subscription.subscription.unsubscribe();
+    };
+  }, [supabase]);
 
   const handlePointerDown = (e: React.PointerEvent) => {
     if (showBack || !cardData.foto) return;
     setIsDragging(true);
     
-    // Inicia com a posição atual da store
     currentPos.current = { x: cardData.pos_x, y: cardData.pos_y };
     dragStart.current = {
       x: e.clientX - cardData.pos_x,
@@ -36,7 +72,6 @@ export function GeneratorPreview() {
     
     currentPos.current = { x: newX, y: newY };
 
-    // Atualiza o Web Component diretamente sem passar pelo React/Zustand
     const card = wrapperRef.current?.querySelector('balela-card-v1, balela-card-v4, balela-card-v6');
     if (card) {
       card.setAttribute('pos_x', newX.toString());
@@ -48,7 +83,6 @@ export function GeneratorPreview() {
     if (!isDragging) return;
     setIsDragging(false);
     
-    // Agora sim persistimos a posição final no estado global
     updateCardData({
       pos_x: currentPos.current.x,
       pos_y: currentPos.current.y
@@ -65,21 +99,23 @@ export function GeneratorPreview() {
     try {
       setIsExporting(true);
       
-      // Importação dinâmica do novo motor
       const { domToPng } = await import('modern-screenshot');
 
-      // Gera a imagem preservando Shadow DOM, Gradients e Filtros
-      const dataUrl = await domToPng(wrapperRef.current, {
-        scale: 2, // Resolução 2x para nitidez
-        quality: 1,
+      const cardElement = wrapperRef.current.querySelector('balela-card-v1, balela-card-v4, balela-card-v6, balela-card-back');
+      const exportTarget = (cardElement || wrapperRef.current) as HTMLElement;
+
+      const dataUrl = await domToPng(exportTarget, {
+        scale: 3,
+        backgroundColor: 'transparent',
         features: {
           copyScrollbar: false,
           removeControlCharacter: true,
         },
-        // Força a inclusão de fontes e estilos externos
-        onBeforeProcess: async (node) => {
-          // Garante que o fundo não saia preto se houver transparência indesejada
-          node.style.backgroundColor = 'transparent';
+        onCloneNode: (cloned) => {
+          if (cloned instanceof HTMLElement) {
+            cloned.style.transform = 'none';
+            cloned.style.margin = '0';
+          }
         }
       });
 
@@ -178,7 +214,27 @@ export function GeneratorPreview() {
             {isExporting ? 'GERANDO...' : 'BAIXAR PNG'}
           </Button>
         </div>
+
+        {role === 'admin' && (
+          <Button 
+            variant="outline" 
+            onClick={() => setIsPrintModalOpen(true)}
+            style={{ width: '100%', marginTop: '10px', borderStyle: 'dashed' }}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '8px' }}>
+              <polyline points="6 9 6 2 18 2 18 9"></polyline>
+              <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+              <rect x="6" y="14" width="12" height="8"></rect>
+            </svg>
+            IMPRIMIR EM LOTE (PDF)
+          </Button>
+        )}
       </div>
+
+      <PrintModal 
+        isOpen={isPrintModalOpen} 
+        onClose={() => setIsPrintModalOpen(false)} 
+      />
     </div>
   );
 }

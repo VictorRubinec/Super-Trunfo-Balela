@@ -335,6 +335,16 @@ A aplicação possui três templates de Web Components consolidados no `ModelReg
 2. **v4 — Thumb (FullArt):** Voltado para cartas raras ou premium. A imagem de fundo preenche a carta inteira (vazando até as bordas), com os textos e ícones flutuando sutilmente com legibilidade adaptativa.
 3. **v6 — Showcase (Video):** Um modelo temático diferenciado, com recortes específicos e focado em destacar elementos de quadros de vídeo/live.
 
+### 5.3. Decisão Arquitetural de Exportação (Opção A)
+- O fluxo oficial de exportação profissional (PDF/ZIP) é **100% server-side**.
+- O frontend não gera mais o PDF final; ele apenas envia o payload para a API e acompanha o status do job.
+- Endpoint canônico:
+  - `POST /api/export` cria o job assíncrono.
+  - `GET /api/export/:jobId` consulta o status.
+  - `GET /api/export/:jobId/download` baixa o ZIP final.
+- Segurança: somente `admin` pode criar/baixar exportação profissional.
+- O download rápido em PNG no gerador permanece client-side e público.
+
 ---
 
 ## 6. Diretrizes de Design e UI/UX (Design System Global)

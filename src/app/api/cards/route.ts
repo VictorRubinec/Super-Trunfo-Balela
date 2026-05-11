@@ -5,11 +5,28 @@ import { createClient } from '@/infrastructure/db/supabase-server';
 
 export async function GET() {
   try {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) {
+      return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
+    }
+
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', user.id)
+      .single();
+
     const repository = new SupabaseCardRepository();
-    const cards = await repository.listAll();
+    const cards = profile?.role === 'admin'
+      ? await repository.listAll()
+      : await repository.findByUser(user.id);
     return NextResponse.json(cards);
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error: unknown) {
+    console.error('[API Cards] Erro ao listar cartas:', error);
+    const message = error instanceof Error ? error.message : 'Erro ao listar cartas';
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }
 
@@ -32,7 +49,8 @@ export async function POST(request: Request) {
     });
 
     return NextResponse.json(newCard, { status: 201 });
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 400 });
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Erro ao criar carta';
+    return NextResponse.json({ error: message }, { status: 400 });
   }
 }

@@ -3,11 +3,23 @@
 import { useGeneratorStore } from '@/store/generatorStore';
 import { Button } from '../ui/Button';
 import { Slider } from '../ui/Slider';
-import { useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { useToast } from '../ui/Toast';
 
 export function GeneratorForm() {
   const { cardData, updateCardData, updateAtributos } = useGeneratorStore();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { showToast } = useToast();
+  const [isSaving, setIsSaving] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      const storedId = localStorage.getItem('current_card_id');
+      if (storedId) setEditingId(storedId);
+    }, 0);
+    return () => clearTimeout(timer);
+  }, []);
 
   const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -177,12 +189,53 @@ export function GeneratorForm() {
           </div>
         </div>
 
-        <Button variant="solid" style={{ width: '100%' }} type="submit">
+        <Button
+          variant="solid"
+          style={{ width: '100%' }}
+          type="submit"
+          disabled={isSaving}
+          onClick={async (e) => {
+            e.preventDefault();
+            if (isSaving) return;
+
+            setIsSaving(true);
+            try {
+              const payload = {
+                ...cardData,
+                atributos: cardData.atributos,
+              };
+
+              const res = await fetch(
+                editingId ? `/api/cards/${editingId}` : '/api/cards',
+                {
+                  method: editingId ? 'PUT' : 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify(payload),
+                }
+              );
+
+              const data = await res.json();
+              if (!res.ok) throw new Error(data?.error || 'Falha ao salvar carta');
+
+              if (!editingId && data?.id) {
+                localStorage.setItem('current_card_id', data.id);
+                setEditingId(data.id);
+              }
+
+              showToast('Carta salva com sucesso!', 'success');
+            } catch (err) {
+              const message = err instanceof Error ? err.message : 'Erro ao salvar carta';
+              showToast(message, 'error');
+            } finally {
+              setIsSaving(false);
+            }
+          }}
+        >
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '8px' }}>
             <line x1="12" y1="5" x2="12" y2="19"></line>
             <line x1="5" y1="12" x2="19" y2="12"></line>
           </svg>
-          <span>Salvar Carta</span>
+          <span>{isSaving ? 'Salvando...' : 'Salvar Carta'}</span>
         </Button>
       </form>
     </div>

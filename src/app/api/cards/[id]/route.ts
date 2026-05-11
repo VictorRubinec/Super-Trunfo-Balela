@@ -16,8 +16,9 @@ export async function GET(
     }
 
     return NextResponse.json(card);
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Erro ao buscar carta';
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }
 
@@ -36,9 +37,15 @@ export async function PUT(
     const body = await request.json();
     const repository = new SupabaseCardRepository();
     
-    // Verificar se a carta pertence ao usuário
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', user.id)
+      .single();
+
+    // Verificar se a carta pertence ao usuário (admins podem editar tudo)
     const existing = await repository.findById(params.id);
-    if (existing?.user_id !== user.id) {
+    if (profile?.role !== 'admin' && existing?.user_id !== user.id) {
       return NextResponse.json({ error: 'Proibido' }, { status: 403 });
     }
 
@@ -46,8 +53,9 @@ export async function PUT(
     const updated = await useCase.execute(params.id, body);
 
     return NextResponse.json(updated);
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 400 });
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Erro ao atualizar carta';
+    return NextResponse.json({ error: message }, { status: 400 });
   }
 }
 
@@ -70,13 +78,20 @@ export async function DELETE(
       return NextResponse.json({ error: 'Carta não encontrada' }, { status: 404 });
     }
 
-    if (existing.user_id !== user.id) {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', user.id)
+      .single();
+
+    if (profile?.role !== 'admin' && existing.user_id !== user.id) {
       return NextResponse.json({ error: 'Proibido' }, { status: 403 });
     }
 
     await repository.delete(params.id);
     return new Response(null, { status: 204 });
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Erro ao excluir carta';
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

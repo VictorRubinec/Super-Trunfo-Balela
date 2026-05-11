@@ -9,9 +9,10 @@ interface ModalProps {
   onClose: () => void
   title: string
   children: ReactNode
+  maxWidth?: string
 }
 
-export function Modal({ isOpen, onClose, title, children }: ModalProps) {
+export function Modal({ isOpen, onClose, title, children, maxWidth = '500px' }: ModalProps) {
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden'
@@ -45,7 +46,7 @@ export function Modal({ isOpen, onClose, title, children }: ModalProps) {
         backgroundColor: 'var(--bg-primary)',
         borderRadius: 'var(--radius-md)',
         width: '100%',
-        maxWidth: '500px',
+        maxWidth: maxWidth,
         padding: '1.5rem',
         boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.2)',
         position: 'relative'

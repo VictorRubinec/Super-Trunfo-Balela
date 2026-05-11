@@ -35,7 +35,7 @@ const initialCardData: CardData = {
   titulo: '',
   tipo: '',
   cor: '#7B2FBE',
-  modelo: 'v1-default',
+  modelo: 'v1',
   frase: '',
   video_origem: '',
   foto: '',
